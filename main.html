@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ET AI Concierge — Production v2 | Economic Times</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="loading-screen">
+  <div class="loading-logo">ET</div>
+  <div class="loading-sub">AI Concierge · PAIL v2.4 · Booting</div>
+  <div class="loading-bar"><div class="loading-fill" id="ld-bar"></div></div>
+  <div class="loading-steps">
+    <div class="loading-step">⬡ Initialising PAIL Intelligence Layer</div>
+    <div class="loading-step">⬡ Loading user identity graph</div>
+    <div class="loading-step">⬡ Connecting ET data fabric</div>
+    <div class="loading-step">⬡ Fetching partner API feeds</div>
+    <div class="loading-step">⬡ Calibrating personalization engine</div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="topbar-logo">
+    <div class="et-badge">ET</div>
+    <div>
+      <div style="font-size:13px;font-weight:500;">Economic Times</div>
+      <div class="topbar-subtitle">AI Concierge · Production v2</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="pail-chip"><span class="pail-chip-dot"></span><span id="pail-score-chip">PAIL 15%</span></div>
+    <span class="prime-pill">PRIME</span>
+    <div class="user-avatar-top">RK</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-section">AI Agents</div>
+  <button class="agent-btn active" onclick="switchAgent('concierge',this)">
+    <div class="agent-icon" style="background:rgba(208,2,27,.15);"></div>
+    <div class="agent-meta"><span class="agent-name">Welcome Concierge</span><span class="agent-sub">Profile & onboarding</span></div>
+    <span class="live-dot"></span>
+  </button>
+  <button class="agent-btn" onclick="switchAgent('navigator',this)">
+    <div class="agent-icon" style="background:rgba(26,107,181,.15);"></div>
+    <div class="agent-meta"><span class="agent-name">Financial Navigator</span><span class="agent-sub">Goals & gaps</span></div>
+  </button>
+  <button class="agent-btn" onclick="switchAgent('crosssell',this)">
+    <div class="agent-icon" style="background:rgba(201,162,39,.15);"></div>
+    <div class="agent-meta"><span class="agent-name">Cross-Sell Engine</span><span class="agent-sub">Smart upsell moments</span></div>
+  </button>
+  <button class="agent-btn" onclick="switchAgent('marketplace',this)">
+    <div class="agent-icon" style="background:rgba(26,171,170,.15);"></div>
+    <div class="agent-meta"><span class="agent-name">Services Marketplace</span><span class="agent-sub">Loans · insurance · wealth</span></div>
+  </button>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-section">PAIL Status</div>
+  <div class="pail-box">
+    <div class="pail-box-title">Intelligence Layer</div>
+    <div class="pail-row"><span class="pail-key">Profile depth</span><span class="pail-val" id="sb-depth">15%</span></div>
+    <div class="pail-bar-bg"><div class="pail-bar-fill" id="sb-bar" style="width:15%"></div></div>
+    <div class="pail-row" style="margin-top:7px;"><span class="pail-key">Risk profile</span><span class="pail-val" id="sb-risk">—</span></div>
+    <div class="pail-row"><span class="pail-key">Segment</span><span class="pail-val" id="sb-seg">—</span></div>
+    <div class="pail-row"><span class="pail-key">Signals today</span><span class="pail-val" id="sb-signals">0</span></div>
+  </div>
+</aside>
+
+<!-- CHAT -->
+<main class="chat-area">
+  <div class="chat-header">
+    <div style="flex:1;">
+      <h2 id="agent-title">ET Welcome Concierge</h2>
+      <p id="agent-desc-hdr">Smart 3-min profiling · Personalised ET ecosystem onboarding</p>
+      <div class="header-tags">
+        <span class="tag active-tag">PAIL Active</span>
+        <span class="tag" id="tag-voice">Voice Ready</span>
+        <span class="tag" id="tag-rag">RAG Enabled</span>
+        <span class="tag" id="tag-hil">Human-in-Loop</span>
+      </div>
+    </div>
+    <div class="accuracy-badge">Accuracy 99.2%</div>
+  </div>
+  <div class="messages" id="messages"></div>
+  <div class="quick-replies" id="quick-replies"></div>
+  <div class="input-area">
+    <div class="input-row">
+      <textarea class="msg-input" id="msg-input" placeholder="Ask your ET AI Concierge…" rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"
+        oninput="autoResize(this)"></textarea>
+      <button class="send-btn" onclick="sendMessage()">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
+    <div class="input-hint">ET AI Concierge · Powered by PAIL · <span id="agent-mode-hint">Welcome Concierge mode</span></div>
+  </div>
+</main>
+
+<!-- RIGHT PANEL -->
+<aside class="right-panel">
+  <div class="panel-tabs">
+    <button class="panel-tab active" onclick="switchTab('profile',this)">Profile</button>
+    <button class="panel-tab" onclick="switchTab('signals',this)">Signals</button>
+    <button class="panel-tab" onclick="switchTab('reco',this)">Reco</button>
+  </div>
+  <div class="panel-content" id="panel-content">
+
+    <!-- PROFILE TAB -->
+    <div class="panel-pane active" id="pane-profile">
+      <div class="p-card">
+        <div class="p-card-title">Your ET Profile · Live</div>
+        <div class="prof-row"><span class="prof-key">Name</span><span class="prof-val" id="p-name">Rahul K.</span></div>
+        <div class="prof-row"><span class="prof-key">Segment</span><span class="prof-val" id="p-seg" style="color:var(--gold)">—</span></div>
+        <div class="prof-row"><span class="prof-key">Age range</span><span class="prof-val" id="p-age">30–35</span></div>
+        <div class="prof-row"><span class="prof-key">Risk profile</span><span class="prof-val" id="p-risk">—</span></div>
+        <div class="prof-row"><span class="prof-key">Income bracket</span><span class="prof-val" id="p-income">—</span></div>
+        <div class="prof-row"><span class="prof-key">Primary goal</span><span class="prof-val" id="p-goal">—</span></div>
+        <div class="prof-row"><span class="prof-key">Horizon</span><span class="prof-val" id="p-horizon">—</span></div>
+        <div class="prof-row"><span class="prof-key">Asset classes</span><span class="prof-val" id="p-assets">—</span></div>
+        <div class="prof-row"><span class="prof-key">ET products</span><span class="prof-val" id="p-products">Prime</span></div>
+        <div class="completion-wrap">
+          <div class="completion-bar"><div class="completion-fill" id="p-comp-fill" style="width:15%"></div></div>
+          <span class="completion-label" id="p-comp-label">15%</span>
+        </div>
+      </div>
+
+      <!-- HUMAN-IN-LOOP -->
+      <div class="hil-section">
+        <div class="hil-title">⚙ Human-in-Loop · Adjust Profile</div>
+        <div class="hil-field">
+          <div class="hil-label">Risk tolerance</div>
+          <select class="hil-select" id="hil-risk">
+            <option value="Conservative">Conservative</option>
+            <option value="Moderate" selected>Moderate</option>
+            <option value="Aggressive">Aggressive</option>
+            <option value="Very Aggressive">Very Aggressive</option>
+          </select>
+        </div>
+        <div class="hil-field">
+          <div class="hil-label">Primary financial goal</div>
+          <select class="hil-select" id="hil-goal">
+            <option value="Retirement / FIRE" selected>Retirement / FIRE</option>
+            <option value="Child education">Child education</option>
+            <option value="Wealth creation">Wealth creation</option>
+            <option value="Capital preservation">Capital preservation</option>
+            <option value="Passive income">Passive income</option>
+          </select>
+        </div>
+        <div class="hil-field">
+          <div class="hil-label">Investment horizon</div>
+          <select class="hil-select" id="hil-horizon">
+            <option value="1–3 yrs">1–3 yrs</option>
+            <option value="3–7 yrs">3–7 yrs</option>
+            <option value="7–12 yrs">7–12 yrs</option>
+            <option value="12–15 yrs" selected>12–15 yrs</option>
+            <option value="15+ yrs">15+ yrs</option>
+          </select>
+        </div>
+        <button class="hil-apply-btn" onclick="applyHIL()">↻ Apply & Repersonalize</button>
+      </div>
+
+      <!-- ONBOARD PATH -->
+      <div class="p-card">
+        <div class="p-card-title">Onboarding Path</div>
+        <div id="ob-steps"></div>
+      </div>
+
+      <!-- METRICS -->
+      <div class="p-card">
+        <div class="p-card-title">ET Ecosystem Usage</div>
+        <div class="metric-grid">
+          <div class="metric-item"><div class="metric-num" id="m-products">1</div><div class="metric-label">Products active</div></div>
+          <div class="metric-item"><div class="metric-num" id="m-articles">0</div><div class="metric-label">Articles read</div></div>
+          <div class="metric-item"><div class="metric-num" id="m-classes">0</div><div class="metric-label">Masterclasses</div></div>
+          <div class="metric-item"><div class="metric-num" id="m-opps" style="color:var(--et-red)">0</div><div class="metric-label">Opportunities</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIGNALS TAB -->
+    <div class="panel-pane" id="pane-signals">
+      <div class="p-card">
+        <div class="p-card-title">Live Behavioural Signals · PAIL feed</div>
+        <div id="signal-feed"></div>
+      </div>
+    </div>
+
+    <!-- RECO TAB -->
+    <div class="panel-pane" id="pane-reco">
+      <div class="p-card">
+        <div class="p-card-title">Personalised Recommendations</div>
+        <div id="reco-list"></div>
+      </div>
+    </div>
+
+  </div>
+</aside>
+</div>
+
+<script src="engine.js"></script>
+</body>
+</html>
