@@ -8,15 +8,15 @@
 class DataFabric {
   constructor() {
     this.identityGraph = {
-      name: 'Rahul K.', initials: 'RK', segment: null,
-      ageRange: '30–35', risk: null, income: null,
+      name: null, initials: '—', segment: null,
+      ageRange: null, risk: null, income: null,
       goal: null, horizon: null,
-      assets: null, products: 'Prime',
+      assets: null, products: null,
       sipCapacity: null, hasInsurance: null, hasNPS: null,
-      hasIntlEquity: null, depth: 15, completedSteps: [0],
+      hasIntlEquity: null, depth: 0, completedSteps: [0],
       signals: []
     };
-    this.metrics = { products: 1, articles: 0, classes: 0, opportunities: 0 };
+    this.metrics = { products: 0, articles: 0, classes: 0, opportunities: 0 };
     this.contentStore = {
       equity: [
         { cat: 'Markets', headline: 'Nifty 50 crosses 24,500 — bull run intact despite FII selling', time: '12 min ago', tag: 'equity' },
@@ -66,7 +66,7 @@ class DataFabric {
     // Recalculate depth based on conversationally gathered fields
     const fields = ['goal', 'risk', 'income', 'assets', 'hasInsurance', 'hasNPS', 'ageRange', 'horizon'];
     const filled = fields.filter(f => u[f] !== null && u[f] !== undefined).length;
-    u.depth = Math.min(95, 15 + filled * 10);
+    u.depth = Math.min(95, filled * 10);
     this.updateUI();
     this.pushSignal(label || 'Profile field updated', 'var(--gold)');
   }
@@ -104,7 +104,7 @@ class DataFabric {
   // ---- UI RENDER METHODS ----
   updateUI() {
     const u = this.identityGraph;
-    this._setFlash('p-name', u.name); this._setFlash('p-seg', u.segment);
+    this._setFlash('p-name', u.name); this._setFlash('p-initials', u.initials); this._setFlash('p-seg', u.segment);
     this._setFlash('p-age', u.ageRange); this._setFlash('p-risk', u.risk);
     this._setFlash('p-income', u.income); this._setFlash('p-goal', u.goal);
     this._setFlash('p-horizon', u.horizon); this._setFlash('p-assets', u.assets);
@@ -211,11 +211,14 @@ class Orchestrator {
       marketplace: { title: 'ET Services Marketplace', desc: 'Financial services concierge · Partner integrations live', hint: 'Services Marketplace mode', qr: ['Home loan options', 'Term insurance quotes', 'Wealth management PMS', 'Best FD rates now'] }
     };
     this.profilingStages = [
-      { ask: `<p>Namaste! 🙏 I'm your <strong>ET AI Concierge</strong>, powered by PAIL — ET's Persistent Adaptive Intelligence Layer.</p><p>I'll map you to everything the ET ecosystem offers in just a few questions. Let's start: <strong>What's your primary financial goal right now?</strong></p>`, richType: 'goal-q', parse: (t) => { let g = 'Wealth creation', s = 'HNI-Aspirant'; if (/retire|fire|independen/i.test(t)) { g = 'Retirement / FIRE'; } else if (/child|educat/i.test(t)) { g = 'Child education'; s = 'Family-Planner'; } else if (/income|passive/i.test(t)) { g = 'Passive income'; s = 'Income-Seeker'; } else if (/preserve|safe|capital/i.test(t)) { g = 'Capital preservation'; s = 'Conservative-HNI'; } return { goal: g, segment: s }; }, signal: t => `Goal detected: ${/retire|fire/i.test(t) ? 'Retirement/FIRE' : 'Wealth creation'}`, depth: 10 },
-      { ask: p => `<p>Great — <strong>${p.goal}</strong> is a well-defined goal. What's your risk appetite?</p>`, richType: 'risk-q', parse: t => { let r = 'Moderate'; if (/conserv|safe|low/i.test(t)) r = 'Conservative'; else if (/moderate|balanced|medium/i.test(t)) r = 'Moderate'; else if (/very aggress|maximum/i.test(t)) r = 'Very Aggressive'; else if (/aggress|high|growth/i.test(t)) r = 'Aggressive'; return { risk: r }; }, signal: t => `Risk profile updated`, depth: 8 },
-      { ask: () => `<p>Understood. <strong>What asset classes are you currently invested in?</strong></p>`, richType: 'asset-q', parse: t => { let a = []; if (/equit|stock|share/i.test(t)) a.push('Equity'); if (/mutual|mf|fund|sip/i.test(t)) a.push('MF'); if (/gold/i.test(t)) a.push('Gold'); if (/real estate|property/i.test(t)) a.push('Real Estate'); if (/fd|fixed|debt|bond/i.test(t)) a.push('Debt/FD'); if (!a.length) a = ['Savings']; return { assets: a.join(', ') }; }, signal: () => 'Asset classes mapped', depth: 7 },
-      { ask: () => `<p>Good diversification context. <strong>What is your approximate annual income bracket?</strong></p>`, richType: 'income-q', parse: t => { let inc = '₹10–20L p.a.', seg = null; if (/below 5|under 5/i.test(t)) inc = 'Below ₹5L p.a.'; else if (/5.*(10|ten)|10 lakh/i.test(t)) inc = '₹5–10L p.a.'; else if (/10.*(20|twenty)|15/i.test(t)) inc = '₹10–20L p.a.'; else if (/20.*(40|forty)|25|30/i.test(t)) { inc = '₹20–40L p.a.'; } else if (/40.*(1 cr|hundred)|50 lakh/i.test(t)) { inc = '₹40L–1Cr p.a.'; seg = 'HNI'; } else if (/1 cr|crore|above 1/i.test(t)) { inc = '₹1Cr+ p.a.'; seg = 'Ultra-HNI'; } const r = { income: inc }; if (seg) r.segment = seg; return r; }, signal: () => 'Income bracket captured — segment refined', depth: 7 },
-      { ask: () => `<p>Almost done profiling. Quick check: <strong>Do you currently have term insurance and NPS?</strong></p>`, richType: 'insurance-q', parse: t => { const hasIns = /yes.*insur|have.*insur|term plan|insurance.*yes/i.test(t) ? true : /no.*insur|don't.*insur|neither|without/i.test(t) ? false : null; const hasNPS = /yes.*nps|have.*nps|nps.*yes/i.test(t) ? true : /no.*nps|don't.*nps|neither/i.test(t) ? false : null; return { hasInsurance: hasIns, hasNPS: hasNPS }; }, signal: () => 'Insurance & NPS coverage status captured', depth: 5 }
+      { ask: `<p>Namaste! 🙏 I'm your <strong>ET AI Concierge</strong>. I'm here to build your <strong>Persistent Intelligence Profile (PAIL)</strong> and guide you through the ET ecosystem.</p><p>First, <strong>may I know your name?</strong></p>`, parse: (t) => { return { name: t, initials: t.split(' ').map(n=>n[0]).join('').toUpperCase() }; }, signal: t => `Identity: ${t}`, depth: 10 },
+      { ask: p => `<p>Pleasure, <strong>${p.name}</strong>. To personalize your feed: <strong>What is your age range?</strong> (e.g., 25–30, 35–40)</p>`, parse: t => { return { ageRange: t }; }, signal: t => `Age range: ${t}`, depth: 10 },
+      { ask: () => `<p>Got it. <strong>What is your primary financial goal right now?</strong> (Retirement, Wealth creation, Child education, etc.)</p>`, richType: 'goal-q', parse: (t) => { let g = 'Wealth creation', s = 'HNI-Aspirant'; if (/retire|fire|independen/i.test(t)) { g = 'Retirement / FIRE'; } else if (/child|educat/i.test(t)) { g = 'Child education'; s = 'Family-Planner'; } else if (/income|passive/i.test(t)) { g = 'Passive income'; s = 'Income-Seeker'; } else if (/preserve|safe|capital/i.test(t)) { g = 'Capital preservation'; s = 'Conservative-HNI'; } return { goal: g, segment: s }; }, signal: t => `Goal: ${t}`, depth: 15 },
+      { ask: p => `<p>For a <strong>${p.goal}</strong> objective, what's your risk appetite?</p>`, richType: 'risk-q', parse: t => { let r = 'Moderate'; if (/conserv|safe|low/i.test(t)) r = 'Conservative'; else if (/moderate|balanced|medium/i.test(t)) r = 'Moderate'; else if (/very aggress|maximum/i.test(t)) r = 'Very Aggressive'; else if (/aggress|high|growth/i.test(t)) r = 'Aggressive'; return { risk: r }; }, signal: t => `Risk profile: ${t}`, depth: 10 },
+      { ask: () => `<p>Understood. <strong>What is your intended investment horizon for this goal?</strong></p>`, parse: t => { return { horizon: t }; }, signal: t => `Horizon: ${t}`, depth: 10 },
+      { ask: () => `<p><strong>What asset classes are you currently invested in?</strong> (Stocks, Mutual Funds, Gold, Real Estate, etc.)</p>`, richType: 'asset-q', parse: t => { let a = []; if (/equit|stock|share/i.test(t)) a.push('Equity'); if (/mutual|mf|fund|sip/i.test(t)) a.push('MF'); if (/gold/i.test(t)) a.push('Gold'); if (/real estate|property/i.test(t)) a.push('Real Estate'); if (/fd|fixed|debt|bond/i.test(t)) a.push('Debt/FD'); if (!a.length) a = ['Savings']; return { assets: a.join(', ') }; }, signal: () => 'Assets mapped', depth: 15 },
+      { ask: () => `<p>To match you with the right ET Prime tier: <strong>What is your approximate annual income?</strong></p>`, richType: 'income-q', parse: t => { let inc = '₹10–20L p.a.', seg = null; if (/below 5|under 5/i.test(t)) inc = 'Below ₹5L p.a.'; else if (/5.*(10|ten)|10 lakh/i.test(t)) inc = '₹5–10L p.a.'; else if (/10.*(20|twenty)|15/i.test(t)) inc = '₹10–20L p.a.'; else if (/20.*(40|forty)|25|30/i.test(t)) { inc = '₹20–40L p.a.'; } else if (/40.*(1 cr|hundred)|50 lakh/i.test(t)) { inc = '₹40L–1Cr p.a.'; seg = 'HNI'; } else if (/1 cr|crore|above 1/i.test(t)) { inc = '₹1Cr+ p.a.'; seg = 'Ultra-HNI'; } const r = { income: inc }; if (seg) r.segment = seg; return r; }, signal: () => 'Income segment captured', depth: 15 },
+      { ask: () => `<p>Last check for your <strong>Navigator</strong> setup: <strong>Do you have term insurance and NPS?</strong></p>`, richType: 'insurance-q', parse: t => { const hasIns = /yes.*insur|have.*insur|term plan|insurance.*yes/i.test(t) ? true : /no.*insur|don't.*insur|neither|without/i.test(t) ? false : null; const hasNPS = /yes.*nps|have.*nps|nps.*yes/i.test(t) ? true : /no.*nps|don't.*nps|neither/i.test(t) ? false : null; return { hasInsurance: hasIns, hasNPS: hasNPS }; }, signal: () => 'Coverage status captured', depth: 15 }
     ];
   }
 
@@ -237,7 +240,10 @@ class Orchestrator {
       this.fabric.updateIdentity(updates, stage.signal(raw));
       this.fabric.addDepth(stage.depth);
       this.profilingStep++;
-      if (this.profilingStep === 2) this.fabric.advanceOnboard(2);
+      // Advance onboarding steps as profile depth grows
+      if (this.profilingStep === 1) this.fabric.advanceOnboard(1);
+      if (this.profilingStep === 3) this.fabric.advanceOnboard(2);
+      if (this.profilingStep === this.profilingStages.length) this.fabric.advanceOnboard(3);
       if (this.profilingStep < this.profilingStages.length) {
         const next = this.profilingStages[this.profilingStep];
         const ask = typeof next.ask === 'function' ? next.ask(this.fabric.identityGraph) : next.ask;
@@ -277,7 +283,7 @@ class Orchestrator {
       this.fabric.pushSignal('FIRE planning simulation initiated', 'var(--teal)');
       return { text: `<p>FIRE simulation for <strong>${u.name}</strong>:</p><p>• Target corpus: <strong>₹3.8–5.2Cr</strong> · • Current SIP trajectory: <strong>₹2.1Cr</strong> at 12% CAGR · • Gap: <strong>₹1.7–3.1Cr</strong> · • Recommendation: Increase SIP by ₹8K/mo</p>`, newsTag: ['wealth'] };
     }
-    return { text: `<p>Analyzing gaps for your <strong>${u.goal}</strong> goal…</p>`, extra: this._buildGapsCard() };
+    return { text: `<p><strong>Deep Life Navigation Report</strong> for ${u.name || 'you'}:</p><p>• Goal alignment: <strong>${u.goal || 'Pending profiling'}</strong> · • Risk/Horizon Compatibility: <strong>Validated</strong> · • Gap Status: <strong>Checking…</strong></p>`, extra: this._buildGapsCard() };
   }
 
   handleCrossSell(txt) {
@@ -375,6 +381,11 @@ function nowTime() { return new Date().toLocaleTimeString([], { hour: '2-digit',
 
 function renderMsg(role, content, time, richType, isExtra) {
   const msgs = document.getElementById('messages');
+  const splash = document.getElementById('welcome-splash');
+  if (splash && !isExtra) {
+    splash.classList.add('fade-out');
+    setTimeout(() => { if (splash.parentNode) splash.remove(); }, 800);
+  }
   const div = document.createElement('div');
   div.className = `msg ${role === 'user' ? 'user' : ''}`;
   const av = document.createElement('div');
@@ -471,10 +482,12 @@ function injectQuick(text) { document.getElementById('msg-input').value = text; 
 
 function hilUpdate() { /* stored on apply */ }
 function applyHIL() {
+  const name = document.getElementById('hil-name').value;
+  const segment = document.getElementById('hil-segment').value;
   const risk = document.getElementById('hil-risk').value;
   const goal = document.getElementById('hil-goal').value;
   const horizon = document.getElementById('hil-horizon').value;
-  fabric.updateIdentity({ risk, goal, horizon }, `HIL override: risk=${risk}, goal=${goal}`);
+  fabric.updateIdentity({ name, initials: name ? name.split(' ').map(n=>n[0]).join('').toUpperCase() : '—', segment, risk, goal, horizon }, `HIL update: Profile manually recalibrated`);
   fabric.addDepth(4); fabric.renderReco(); flashTag('tag-hil');
   renderMsg('assistant', `<p>⚙️ <strong>Human-in-Loop override applied.</strong> Risk: <strong>${risk}</strong> · Goal: <strong>${goal}</strong> · Horizon: <strong>${horizon}</strong></p><p>All agents repersonalised.</p>`, nowTime());
   setTimeout(() => renderMsg('assistant', engine._buildMarketplaceCard(), nowTime(), null, true), 400);
@@ -487,13 +500,13 @@ const AutomatedTests = {
   run() {
     console.group('ET PAIL Verified Test Suite');
     const results = [
-      this.t('PAIL state initialised', () => !!fabric.identityGraph.name),
-      this.t('Profile starts with low depth (chat-driven)', () => fabric.identityGraph.depth >= 15),
+      this.t('Initial state is empty', () => fabric.identityGraph.name === null),
+      this.t('Profiling stages defined', () => engine.profilingStages.length === 6),
+      this.t('PAIL state initialised', () => fabric.identityGraph.depth >= 15),
       this.t('News fetch returns items', () => fabric.fetchNews(['equity']).length > 0),
       this.t('Partner services fetch', () => APIGateway.getPartners('Moderate').length > 0),
-      this.t('Profiling stages defined', () => engine.profilingStages.length === 5),
       this.t('All 4 agents configured', () => ['concierge', 'navigator', 'crosssell', 'marketplace'].every(a => !!engine.agentConfig[a])),
-      this.t('PAIL update engine', () => { const b = fabric.identityGraph.risk; fabric.updateIdentity({ risk: 'Test' }, 'test'); const a = fabric.identityGraph.risk; fabric.updateIdentity({ risk: b }, 'rollback'); return a === 'Test'; }),
+      this.t('Identity update logic', () => { fabric.updateIdentity({ risk: 'Aggressive' }, 'test'); return fabric.identityGraph.risk === 'Aggressive'; }),
       this.t('HIL controls rendered', () => !!document.getElementById('hil-risk')),
       this.t('Messages container', () => !!document.getElementById('messages')),
       this.t('Signal feed functional', () => { fabric.pushSignal('Self-test', 'var(--teal)'); return fabric.identityGraph.signals.length > 0; })
@@ -534,9 +547,11 @@ window.addEventListener('load', () => {
           fabric.pushSignal('Partner API gateway live', 'var(--teal)');
           fabric.updateUI(); fabric.renderMetrics();
           setQuickReplies(engine.agentConfig.concierge.qr);
-          // First profiling message
-          const intro = engine.profilingStages[0];
-          renderMsg('assistant', intro.ask, nowTime(), intro.richType);
+          // First profiling message with delay to show splash
+          setTimeout(() => {
+            const intro = engine.profilingStages[0];
+            renderMsg('assistant', intro.ask, nowTime(), intro.richType);
+          }, 1500);
           // Self-test
           setTimeout(() => AutomatedTests.run(), 1000);
         }, 500);
