@@ -310,10 +310,25 @@ class BehaviourTracker {
       triggers.push({ type: 'service', product: 'insurance', reason: 'Critical Gap: No Term Insurance detected. Secure your family.', priority: 'critical', icon: '🛡️', url: 'https://economictimes.indiatimes.com/wealth/insure' });
     }
     if (userProfile.incomeNum >= 2400000 && !this.topicFrequency['credit_cards']) {
-      triggers.push({ type: 'upsell', product: 'credit_cards', reason: 'Profile Match: You are eligible for premium ET-Axis Magnus Card', priority: 'high', icon: '💳' });
+      triggers.push({ type: 'upsell', product: 'credit_cards', reason: 'Profile Match: You are eligible for premium ET-Axis Magnus card tier.', priority: 'high', icon: '💳', url: 'https://economictimes.indiatimes.com/wealth/spend' });
+    } else if (userProfile.incomeNum >= 1200000) {
+      triggers.push({ type: 'upsell', product: 'credit_cards', reason: 'Profile Match: Mid-premium card options are available for your income band.', priority: 'medium', icon: '💳', url: 'https://economictimes.indiatimes.com/wealth/spend' });
     }
     if (this.topicFrequency['markets'] >= 2 && !this.topicFrequency['prime']) {
       triggers.push({ type: 'upsell', product: 'prime', reason: `You've asked multiple market questions — ET Prime gives you expert analysis`, priority: 'high', icon: '📰', url: 'https://economictimes.indiatimes.com/prime' });
+    }
+
+    if ((userProfile.surplus || 0) > 0) {
+      triggers.push({ type: 'service', product: 'sip_start', reason: `Actionable Next Step: Start SIPs with your ₹${Math.round(userProfile.surplus).toLocaleString('en-IN')}/month surplus.`, priority: 'medium', icon: '📈', url: 'https://economictimes.indiatimes.com/mutual-funds' });
+    }
+
+    if (userProfile.risk === 'Aggressive') {
+      triggers.push({ type: 'upsell', product: 'masterclass_growth', reason: 'Behavior Fit: Advanced market learning can improve high-growth decision quality.', priority: 'medium', icon: '🎓', url: 'https://economictimes.indiatimes.com/masterclass' });
+    }
+
+    if (triggers.length === 0) {
+      triggers.push({ type: 'upsell', product: 'prime_starter', reason: 'Starter Offer: ET Prime helps personalize your market and wealth journey.', priority: 'medium', icon: '📰', url: 'https://economictimes.indiatimes.com/prime' });
+      triggers.push({ type: 'service', product: 'marketplace_check', reason: 'Service Check: Explore cards, insurance, and wealth services matched to your profile.', priority: 'medium', icon: '🧭', url: 'https://economictimes.indiatimes.com/wealth' });
     }
 
     const uniqueTriggers = []; const seen = new Set();
@@ -630,16 +645,20 @@ class ContextualNLPEngine {
     this.coreIntents = [
       { id: 'recommend_mf', patterns: [/recommend.*fund/i, /stable.*fund/i, /best.*mutual fund/i, /where.*invest/i], conf: 0.95 },
       { id: 'recommend_card', patterns: [/best.*credit card/i, /recommend.*card/i, /which card/i, /credit card for me/i], conf: 0.95 },
+      { id: 'recommend_insurance', patterns: [/term insurance/i, /insurance quote/i, /need insurance/i, /life cover/i], conf: 0.95 },
+      { id: 'recommend_loan', patterns: [/loan/i, /emi/i, /borrow/i, /home loan/i, /personal loan/i], conf: 0.95 },
       { id: 'sip_roadmap', patterns: [/sip.*allocation/i, /sip.*(\d+)/i, /build.*roadmap/i, /roadmap/i], conf: 0.95 },
+      { id: 'start_investing', patterns: [/how.*start.*invest/i, /where.*start.*invest/i, /beginner.*invest/i, /invest.*safely/i, /new to invest/i, /first time.*invest/i], conf: 0.95 },
       { id: 'gap_analysis', patterns: [/gap/i, /analyze.*portfolio/i, /review.*portfolio/i], conf: 0.9 },
-      { id: 'show_onboard', patterns: [/where is my onboard/i, /onboard/i, /my path/i, /best for my profile/i], conf: 0.9 },
-      { id: 'portfolio_add', patterns: [/\badd\b.*(?:invest|hold|stock|fund|sip)/i], conf: 0.85 }
+      { id: 'show_onboard', patterns: [/where is my onboard/i, /onboard/i, /my path/i], conf: 0.9 },
+      { id: 'portfolio_add', patterns: [/\badd\b.*(?:invest|hold|stock|fund|sip)/i], conf: 0.85 },
+      { id: 'crosssell_offer', patterns: [/cross\s*-?\s*sell/i, /upsell/i, /offer for me/i, /best for my profile/i, /opportunit(?:y|ies)/i], conf: 0.9 }
     ];
 
     // PRIORITY 2: Conversational Intents
     this.convIntents = [
       { id: 'personalized_news', patterns: [/which news/i, /recommend news/i, /news for me/i], conf: 0.9 },
-      { id: 'navigation', patterns: [/where can i (find|access|read|see)/i, /how to (find|access|go to)/i, /link for/i, /take me to/i, /where is/i], conf: 0.95 },
+      { id: 'navigation', patterns: [/where can i (find|access|read|see)/i, /how to (find|access|go to)/i, /link for/i, /take me to/i, /where is/i, /wehre is/i], conf: 0.95 },
       { id: 'bot_identity', patterns: [/who are you/i, /what are you/i, /capabilities/i, /what can you do/i], conf: 0.95 },
       { id: 'affirmative', patterns: [/\byes\b/i, /\byeah\b/i, /\bsure\b/i, /\bok\b/i], conf: 1.0 },
       { id: 'negative', patterns: [/\bno\b/i, /\bnah\b/i, /\bcancel\b/i], conf: 1.0 }
@@ -695,10 +714,10 @@ class Orchestrator {
     this.profilingStep = 0;
 
     this.agentConfig = {
-      concierge: { title: 'ET Welcome Concierge', desc: 'Smart 3-min profiling · Personalised ET ecosystem onboarding', qr: ['Tell me about ET Prime', 'Show my financial gaps', 'Build my SIP Roadmap', 'which news you recommend for me'] },
-      navigator: { title: 'Financial Life Navigator', desc: 'Deep financial understanding · Goal mapping · Portfolio gap analysis', qr: ['Analyse my portfolio gaps', 'Build my SIP Roadmap', 'Recommend mutual funds'] },
-      crosssell: { title: 'ET Cross-Sell Engine', desc: 'Behavioural trigger analysis · Right offer at the right moment', qr: ["What's best for my profile?", 'ET Masterclass match'] },
-      marketplace: { title: 'ET Services Marketplace', desc: 'Financial services concierge · Partner integrations live', qr: ['Credit card for me', 'Term insurance quotes', 'Recommend mutual funds'] }
+      concierge: { title: 'ET Welcome Concierge', desc: 'Welcome + onboarding details only', qr: ['Show my onboarding path', 'Who are you?', 'What details do you need?'] },
+      navigator: { title: 'Financial Life Navigator', desc: 'Investment plan, ET tools guidance, partner services fit, portfolio gaps and immediate needs', qr: ['Analyse my portfolio gaps', 'Build my SIP Roadmap', 'Recommend mutual funds'] },
+      crosssell: { title: 'ET Cross-Sell Engine', desc: 'Proactive cross-sell/upsell engine based on behavior + profile timing', qr: ["What's best for my profile?", 'Any upsell opportunity for me?'] },
+      marketplace: { title: 'ET Services Marketplace', desc: 'Concierge for credit cards, loans, insurance, and wealth services via ET partnerships', qr: ['Credit card for me', 'Term insurance quotes', 'Loan options for me'] }
     };
 
     // EXACT PRECISION PROFILING (Regex extracts exact numbers, Custom inputs allowed)
@@ -748,6 +767,7 @@ class Orchestrator {
 
   async process(input) {
     this.fabric.metrics.interactions++;
+    this.fabric.behaviour.trackQuery(input, this.currentAgent);
     this.fabric.pushSignal(`Query: ${input.substring(0, 25)}...`, 'rgba(255,255,255,.2)');
 
     // 1. Profiling Wizard Interception
@@ -777,56 +797,128 @@ class Orchestrator {
     const analysis = this.nlp.analyze(input);
     const intent = analysis.intent;
 
-    // A. AGENT-SPECIFIC CORE OVERRIDES
-    if (this.currentAgent === 'marketplace' || intent === 'recommend_card') {
-      if (/card/i.test(input)) {
-        this.fabric.pushSignal('Marketplace: Card match executing', 'var(--gold)');
-        return this._buildCardRecommendation();
+    const agentScope = {
+      concierge: new Set(['show_onboard', 'bot_identity']),
+      navigator: new Set(['start_investing', 'sip_roadmap', 'recommend_mf', 'gap_analysis', 'portfolio_add', 'discover_kb']),
+      crosssell: new Set(['crosssell_offer']),
+      marketplace: new Set(['recommend_card', 'recommend_insurance', 'recommend_loan', 'discover_kb'])
+    };
+
+    const intentOwner = {
+      show_onboard: 'concierge',
+      bot_identity: 'concierge',
+      start_investing: 'navigator',
+      sip_roadmap: 'navigator',
+      recommend_mf: 'navigator',
+      gap_analysis: 'navigator',
+      portfolio_add: 'navigator',
+      crosssell_offer: 'crosssell',
+      recommend_card: 'marketplace',
+      recommend_insurance: 'marketplace',
+      recommend_loan: 'marketplace'
+    };
+
+    const displayAgent = {
+      concierge: 'ET Welcome Concierge',
+      navigator: 'Financial Life Navigator',
+      crosssell: 'ET Ecosystem Cross-Sell Engine',
+      marketplace: 'ET Services Marketplace Agent'
+    };
+
+    const offScopeResponse = (targetKey) => ({
+      text: `<p>This request belongs to <strong>${displayAgent[targetKey]}</strong>.</p>
+             <p>Please switch to that agent tab so I can handle it in the correct workflow without mixing responsibilities.</p>`
+    });
+
+    const buildKBResponse = (d) => ({
+      text: `<p>${d.parentIcon || d.icon || '🔗'} <strong>I can guide you to ${d.name}</strong></p>
+             <p>Based on your requirement, the best place on Economic Times to access this information is the <strong>${d.name}</strong> section.</p>
+             <div style="background:rgba(26,107,181,.1);padding:14px;border-radius:8px;margin-top:12px;border-left:4px solid var(--blue)">
+               <div style="font-weight:600;margin-bottom:6px">${d.parentProduct ? `${d.parentProduct} > ` : ''}${d.name}</div>
+               <a href="${d.url}" class="et-link" target="_blank" style="font-size:12px">Access ${d.name} here →</a>
+             </div>`
+    });
+
+    if (intent !== 'unknown' && !agentScope[this.currentAgent].has(intent)) {
+      if (intent === 'discover_kb') {
+        const target = /insurance|loan|credit card|card|wealth|tax/i.test(input) ? 'marketplace' : 'navigator';
+        return offScopeResponse(target);
       }
+      const target = intentOwner[intent];
+      if (target) return offScopeResponse(target);
     }
 
-    if (this.currentAgent === 'marketplace' || this.currentAgent === 'navigator' || intent === 'recommend_mf') {
-      if (/mutual|fund/i.test(input)) {
-        this.fabric.pushSignal('Marketplace: MF filtering active', 'var(--blue)');
-        return this._buildMFRecommendation(input);
-      }
+    if (this.currentAgent === 'concierge') {
+      if (intent === 'show_onboard') return { text: `<p>Here is your mapped onboarding path:</p>`, extra: this._buildDynamicOnboardUI() };
+      if (intent === 'bot_identity') return { text: `<p>I am the <strong>ET Welcome Concierge</strong>. I handle your welcome journey and onboarding path only.</p>` };
+      return {
+        text: `<p>Welcome! I handle onboarding only.</p><p>Ask me: <strong>"Show my onboarding path"</strong> or continue the profiling flow.</p>`
+      };
     }
 
-    if (this.currentAgent === 'navigator' || intent === 'sip_roadmap') {
-      if (/sip|roadmap/i.test(input)) {
+    if (this.currentAgent === 'navigator') {
+      if (intent === 'start_investing') {
+        this.fabric.pushSignal('Navigator: Beginner investing intent mapped', 'var(--teal)');
+        return {
+          text: `<p>Great question. Here is your safe, profile-based investment roadmap:</p>`,
+          extra: this._buildSIPRoadmap(input).text
+        };
+      }
+      if (intent === 'sip_roadmap') {
         this.fabric.pushSignal('Navigator: SIP Roadmap Computed', 'var(--teal)');
         return this._buildSIPRoadmap(input);
       }
+      if (intent === 'recommend_mf') {
+        this.fabric.pushSignal('Navigator: MF filtering active', 'var(--blue)');
+        return this._buildMFRecommendation(input);
+      }
+      if (intent === 'gap_analysis') return { text: `<p>📊 <strong>Portfolio Gap Analysis</strong></p>`, extra: this._buildGapsCard() };
+      if (intent === 'discover_kb' && analysis.data) {
+        return {
+          text: buildKBResponse(analysis.data).text,
+          extra: this._buildNavigatorKBDetails(analysis.data)
+        };
+      }
+      return {
+        text: `<p>I handle investment planning, portfolio gaps, and ET tool guidance.</p><p>Try: <strong>"Build my SIP roadmap"</strong> or <strong>"Analyze my portfolio gaps"</strong>.</p>`
+      };
     }
 
-    // B. UNIVERSAL FUNCTIONAL INTENTS
-    if (intent === 'gap_analysis') return { text: `<p>📊 <strong>Portfolio Gap Analysis</strong></p>`, extra: this._buildGapsCard() };
-    if (intent === 'show_onboard') return { text: `<p>Here is your mapped onboarding path:</p>`, extra: this._buildDynamicOnboardUI() };
-    if (intent === 'bot_identity') return { text: `<p>I am the <strong>ET AI Concierge</strong>, powered by PAIL. I process your exact financial data mathematically to navigate the Economic Times ecosystem, identify portfolio gaps, and recommend specific financial products without hallucinations.</p>` };
-    if (intent === 'personalized_news') return this._buildPersonalizedNewsResponse();
-
-    // C. ECOSYSTEM / KNOWLEDGE BASE ROUTING
-    if (intent === 'discover_kb') {
-      const d = analysis.data;
-      let txt = `<p>${d.parentIcon || d.icon || '🔗'} <strong>I can guide you to ${d.name}</strong></p>
-                                     <p>Based on your requirement, the best place on Economic Times to access this information is the <strong>${d.name}</strong> section.</p>
-                                     <div style="background:rgba(26,107,181,.1);padding:14px;border-radius:8px;margin-top:12px;border-left:4px solid var(--blue)">
-                                         <div style="font-weight:600;margin-bottom:6px">${d.parentProduct ? `${d.parentProduct} > ` : ''}${d.name}</div>
-                                         <a href="${d.url}" class="et-link" target="_blank" style="font-size:12px">Access ${d.name} here →</a>
-                                     </div>`;
-      return { text: txt };
+    if (this.currentAgent === 'crosssell') {
+      if (intent === 'crosssell_offer') {
+        const triggers = this.fabric.behaviour.getCrossSellTriggers(this.fabric.identityGraph);
+        if (triggers.length > 0) {
+          return { text: `<p>🎯 <strong>Cross-Sell Analysis</strong></p><p>Based on your profile and behavior, here are your best timed opportunities with recommended SIP investment guidance:</p>`, extra: this._buildCrossSellCard(triggers, this.fabric.identityGraph) };
+        }
+        return { text: `<p>Cross-sell signals are still warming up. Ask about your profile fit, and I’ll surface the best available ET offer with timing rationale.</p>` };
+      }
+      return {
+        text: `<p>I only handle cross-sell and upsell opportunities based on behavior signals.</p><p>Ask: <strong>"Show my best offer"</strong> or <strong>"Any upsell opportunity for me?"</strong></p>`
+      };
     }
 
-    // D. CROSS-SELL INTERCEPTION
-    if (this.currentAgent === 'crosssell' || /upsell|best for my profile/i.test(input)) {
-      const triggers = this.fabric.behaviour.getCrossSellTriggers(this.fabric.identityGraph);
-      if (triggers.length > 0) return { text: `<p>🎯 <strong>Cross-Sell Analysis</strong></p><p>Based on your profile, here are your top opportunities:</p>`, extra: this._buildCrossSellCard(triggers) };
+    if (this.currentAgent === 'marketplace') {
+      if (intent === 'recommend_card') {
+        this.fabric.pushSignal('Marketplace: Card match executing', 'var(--gold)');
+        return this._buildCardRecommendation();
+      }
+      if (intent === 'recommend_insurance') {
+        return {
+          text: `<p>🛡️ <strong>ET Services Marketplace — Insurance Concierge</strong></p>
+                 <p>Based on your profile, term insurance is the first protection layer to evaluate.</p>
+                 <div style="margin-top:10px"><a href="https://economictimes.indiatimes.com/wealth/insure" target="_blank" class="et-link" style="font-size:12px">Explore ET Insurance Services →</a></div>`
+        };
+      }
+      if (intent === 'recommend_loan') {
+        return this._buildLoanEligibility();
+      }
+      if (intent === 'discover_kb' && analysis.data) return buildKBResponse(analysis.data);
+      return {
+        text: `<p>I handle ET partner financial services only: credit cards, loans, insurance, and wealth services.</p><p>Try: <strong>"Credit card for me"</strong> or <strong>"Term insurance quotes"</strong>.</p>`
+      };
     }
 
-    // E. CONVERSATIONAL FALLBACK
-    const u = this.fabric.identityGraph;
-    this.fabric.contextMemory.pendingAction = 'show_onboard';
-    return { text: `<p>I'm continually learning! Since your goal is <strong>${u.goal || 'Wealth creation'}</strong>, would you like me to show your personalised onboarding path again?</p>` };
+    return { text: `<p>Please select an agent to continue.</p>` };
   }
 
   _resolveRiskBand(isStableRequest) {
@@ -850,16 +942,27 @@ class Orchestrator {
     const ageStr = (user.ageRange || '30–35').match(/\d+/)?.[0];
     const age = parseInt(ageStr, 10) || 30;
 
-    const eligible = ETEcosystemKB.financialDB.creditCards.filter(c => {
-      return income >= c.minIncome && age >= (c.minAge || 21);
+    const cards = ETEcosystemKB.financialDB.creditCards.map(c => {
+      const minAge = c.minAge || 21;
+      const incomeGap = Math.max(0, c.minIncome - income);
+      const ageGap = Math.max(0, minAge - age);
+      return {
+        ...c,
+        incomeGap,
+        ageGap,
+        eligibleNow: incomeGap === 0 && ageGap === 0
+      };
     });
 
-    if (eligible.length === 0) {
-      return ETEcosystemKB.financialDB.creditCards.filter(c => age >= (c.minAge || 21)).slice(0, 2);
-    }
+    const eligible = cards.filter(c => c.eligibleNow).sort((a, b) => b.minIncome - a.minIncome);
+    if (eligible.length > 0) return eligible.slice(0, 3);
 
-    eligible.sort((a, b) => b.minIncome - a.minIncome);
-    return eligible.slice(0, 3);
+    const nearEligible = cards
+      .filter(c => c.incomeGap === 0 || c.ageGap === 0)
+      .sort((a, b) => (a.ageGap + a.incomeGap / 100000) - (b.ageGap + b.incomeGap / 100000));
+    if (nearEligible.length > 0) return nearEligible.slice(0, 3);
+
+    return cards.sort((a, b) => a.minIncome - b.minIncome).slice(0, 3);
   }
 
   // --- CORE HTML RENDERING MODULES ---
@@ -907,15 +1010,89 @@ class Orchestrator {
       <div style="background:rgba(201,162,39,.1);padding:12px;border-radius:8px;margin-bottom:10px;border-left:3px solid var(--gold)">
         <div style="font-weight:600;font-size:13px">${c.name}</div>
         <div style="font-size:11px;color:var(--et-muted);margin:4px 0">Type: ${c.type}</div>
+        <div style="font-size:11px;margin:4px 0;color:${c.eligibleNow ? 'var(--teal)' : 'var(--gold)'}">
+          <strong>${c.eligibleNow ? 'Eligible now' : c.ageGap > 0 ? `Eligible in ~${c.ageGap} year(s)` : `Needs +₹${Math.round(c.incomeGap).toLocaleString('en-IN')} annual income`}</strong>
+        </div>
         <div style="font-size:11px;margin:4px 0"><strong>Benefits:</strong> ${c.reward}</div>
       </div>
     `).join('');
 
     return {
       text: `<p>💳 <strong>ET Services Marketplace — Credit Cards</strong></p>
-                        <p>Based on your verified profile (Annual Income: ₹${(income / 100000).toFixed(1)}L, Age: ${(u.ageRange || '30–35')}), you are pre-approved for these cards:</p>
+                        <p>Based on your verified profile (Annual Income: ₹${(income / 100000).toFixed(1)}L, Age: ${(u.ageRange || '30–35')}), here are the available card options for you right now (and closest eligible options):</p>
                         ${cardsList}
                         <div style="margin-top:12px"><a href="https://economictimes.indiatimes.com/wealth/spend" target="_blank" class="et-link" style="font-size:11px">View all card offers on ET →</a></div>` };
+  }
+
+  _buildLoanEligibility() {
+    const u = this.fabric.identityGraph;
+    const annualIncome = u.incomeNum || 600000;
+    const monthlyIncome = annualIncome / 12;
+    const monthlyExpenses = u.monthlyExpenses || (monthlyIncome * 0.5);
+    const surplus = Math.max(0, (u.surplus || (monthlyIncome - monthlyExpenses)));
+    const age = parseInt((u.ageRange || '30-35').match(/\d+/)?.[0] || '30', 10);
+
+    const recommendedEMI = Math.max(3000, Math.round(Math.min(monthlyIncome * 0.4, surplus * 0.75)));
+    const profileBand = annualIncome >= 2000000 ? 'high' : annualIncome >= 1200000 ? 'mid' : annualIncome >= 600000 ? 'emerging' : 'starter';
+
+    const slabs = {
+      high: { home: 12000000, personal: 2500000, education: 3500000 },
+      mid: { home: 7000000, personal: 1500000, education: 2200000 },
+      emerging: { home: 3500000, personal: 600000, education: 1200000 },
+      starter: { home: 1500000, personal: 250000, education: 600000 }
+    };
+
+    const tenureYears = age >= 40 ? 15 : 20;
+    const slab = slabs[profileBand];
+
+    const rows = [
+      { name: 'Home Loan', cap: slab.home, eta: '8.5%–9.5%', url: 'https://economictimes.indiatimes.com/wealth/borrow' },
+      { name: 'Personal Loan', cap: slab.personal, eta: '10.5%–16%', url: 'https://economictimes.indiatimes.com/wealth/borrow' },
+      { name: 'Education Loan', cap: slab.education, eta: '9%–13%', url: 'https://economictimes.indiatimes.com/wealth/borrow' }
+    ];
+
+    const loanCards = rows.map(r => `
+      <div style="background:rgba(26,107,181,.08);padding:10px;border-radius:8px;margin-bottom:8px;border-left:3px solid var(--blue)">
+        <div style="font-weight:600;font-size:12px">${r.name}</div>
+        <div style="font-size:11px;color:var(--et-muted);margin-top:4px">Estimated eligible amount: <strong>₹${Math.round(r.cap).toLocaleString('en-IN')}</strong></div>
+        <div style="font-size:11px;color:var(--et-muted)">Indicative interest range: ${r.eta}</div>
+        <div style="margin-top:6px"><a href="${r.url}" target="_blank" class="et-link" style="font-size:11px">Check ${r.name} options on ET →</a></div>
+      </div>
+    `).join('');
+
+    return {
+      text: `<p>🏦 <strong>ET Services Marketplace — Loan Eligibility</strong></p>
+             <p>Based on your profile (Income: ₹${(annualIncome / 100000).toFixed(1)}L · Age: ${u.ageRange || '30-35'}), here is your estimated eligibility:</p>
+             <div class="r-card">
+               <div style="font-size:12px;color:var(--et-muted);margin-bottom:8px">Recommended EMI capacity: <strong style="color:var(--teal)">₹${recommendedEMI.toLocaleString('en-IN')}/month</strong> · Suggested max tenure: <strong>${tenureYears} years</strong></div>
+               ${loanCards}
+               <div style="font-size:11px;color:var(--et-muted)">Note: Final approval depends on lender credit checks, existing obligations, and documentation.</div>
+             </div>`
+    };
+  }
+
+  _buildNavigatorKBDetails(data) {
+    const name = (data?.name || '').toLowerCase();
+    const isForex = /forex|currency/.test(name);
+
+    if (isForex) {
+      return `<div class="r-card"><div class="r-card-title">Navigator Details · Forex</div>
+        <div style="font-size:12px;color:var(--et-muted);line-height:1.7">
+          <div>• Track <strong>USD/INR and major currency moves</strong> with ET Markets Forex.</div>
+          <div>• Follow <strong>RBI policy</strong>, global rate cues, and currency volatility updates.</div>
+          <div>• Use this section when planning <strong>international investing</strong> or currency-sensitive decisions.</div>
+        </div>
+        <div style="margin-top:8px"><a href="https://economictimes.indiatimes.com/markets/forex" target="_blank" class="et-link" style="font-size:11px">Open ET Markets Forex →</a></div>
+      </div>`;
+    }
+
+    return `<div class="r-card"><div class="r-card-title">Navigator Details</div>
+      <div style="font-size:12px;color:var(--et-muted);line-height:1.7">
+        <div>• This ET section maps to your goal and risk profile.</div>
+        <div>• Use it for decision-ready insights before taking investment actions.</div>
+        <div>• Ask next: <strong>"How should I use this for my profile?"</strong></div>
+      </div>
+    </div>`;
   }
 
   _buildSIPRoadmap(input) {
@@ -1084,8 +1261,28 @@ class Orchestrator {
     return `<div class="r-card"><div class="r-card-title">Gap Analysis</div>${gaps.map(g => `<div class="opp-row"><div class="opp-left"><div class="opp-ico" style="background:${g.bg}">${g.ico}</div><div><div class="opp-title">${g.title}</div><div class="opp-sub">${g.sub}</div></div></div><span class="match-pill ${g.level}">${g.match}</span></div>`).join('')}</div>`;
   }
 
-  _buildCrossSellCard(triggers) {
-    return `<div class="r-card"><div class="r-card-title">Behavioural Match</div>${triggers.map(i => `<div class="opp-row"><div class="opp-left"><div class="opp-ico" style="background:rgba(201,162,39,.15)">${i.icon}</div><div><div class="opp-title">${i.reason}</div><div class="opp-sub">${i.priority} priority</div></div></div><a href="${i.url || '#'}" target="_blank" class="match-pill match-high" style="text-decoration:none">View</a></div>`).join('')}</div>`;
+  _buildCrossSellCard(triggers, userProfile) {
+    const u = userProfile || this.fabric.identityGraph;
+    const sipAmount = Math.max(5000, Math.round(u.surplus || 10000));
+
+    let eq = 50, db = 30, gl = 10, in_ = 10;
+    if (u.risk === 'Aggressive') { eq = 65; db = 15; gl = 5; in_ = 15; }
+    else if (u.risk === 'Conservative') { eq = 25; db = 60; gl = 15; in_ = 0; }
+
+    return `<div class="r-card">
+      <div class="r-card-title">Behavioural Match</div>
+      <div style="background:rgba(26,107,181,.08);padding:10px;border-radius:8px;margin-bottom:10px;border-left:3px solid var(--teal)">
+        <div style="font-weight:600;font-size:12px;margin-bottom:6px">Profile-based SIP Recommendation</div>
+        <div style="font-size:11px;color:var(--et-muted);margin-bottom:6px">Risk: ${u.risk || 'Moderate'} · Goal: ${u.goal || 'Wealth creation'} · Monthly SIP: <strong style="color:var(--teal)">₹${sipAmount.toLocaleString('en-IN')}</strong></div>
+        <div style="font-size:11px;line-height:1.7">
+          <span><strong>Equity:</strong> ₹${Math.round(sipAmount * eq / 100).toLocaleString('en-IN')} (${eq}%)</span> ·
+          <span><strong>Debt:</strong> ₹${Math.round(sipAmount * db / 100).toLocaleString('en-IN')} (${db}%)</span> ·
+          <span><strong>Gold:</strong> ₹${Math.round(sipAmount * gl / 100).toLocaleString('en-IN')} (${gl}%)</span>
+          ${in_ > 0 ? ` · <span><strong>International:</strong> ₹${Math.round(sipAmount * in_ / 100).toLocaleString('en-IN')} (${in_}%)</span>` : ''}
+        </div>
+      </div>
+      ${triggers.map(i => `<div class="opp-row"><div class="opp-left"><div class="opp-ico" style="background:rgba(201,162,39,.15)">${i.icon}</div><div><div class="opp-title">${i.reason}</div><div class="opp-sub">${i.priority} priority</div></div></div><a href="${i.url || '#'}" target="_blank" class="match-pill match-high" style="text-decoration:none">View</a></div>`).join('')}
+    </div>`;
   }
 
   getRichCardHTML(type) {
@@ -1320,23 +1517,23 @@ function switchAgent(key, btn) {
     const guide = {
       concierge: {
         title: 'Welcome Concierge',
-        desc: 'Builds your financial profile and personalizes your full ET journey.',
-        demos: ['My name is Sajan', 'I am 28', 'My goal is wealth creation']
+        desc: 'Handles welcome and onboarding details only.',
+        demos: ['Show my onboarding path', 'Who are you?', 'What details do you need?']
       },
       navigator: {
         title: 'Financial Navigator',
-        desc: 'Analyzes gaps and creates SIP allocation/roadmap from your profile.',
-        demos: ['Build my SIP roadmap', 'Analyze my portfolio gaps', 'Show my onboarding path']
+        desc: 'Understands your profile to generate investment plans, identify gaps, and guide you to the right ET tools and partner services.',
+        demos: ['Build my SIP roadmap', 'Analyze my portfolio gaps', 'Recommend mutual funds']
       },
       crosssell: {
         title: 'Cross-Sell Engine',
-        desc: 'Finds high-fit opportunities using profile + behavior signals.',
-        demos: ["What's best for my profile?", 'Show my top opportunities', 'Do I need term insurance?']
+        desc: 'Proactively identifies cross-sell and upsell opportunities at the right moment based on behavior + profile.',
+        demos: ["What's best for my profile?", 'Any upsell opportunity for me?', 'Show my top opportunities']
       },
       marketplace: {
         title: 'Services Marketplace',
-        desc: 'Maps you to suitable services like funds, cards, and insurance.',
-        demos: ['Recommend mutual funds', 'Credit card for me', 'Term insurance quotes']
+        desc: 'Conversational concierge for credit cards, loans, insurance, and wealth services via ET partnerships.',
+        demos: ['Credit card for me', 'Term insurance quotes', 'Loan options for me']
       }
     };
 
