@@ -1,0 +1,8 @@
+{
+  "name": "et-code",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "test": "node tests/profile-regression.test.js"
+  }
+}

@@ -13,54 +13,6 @@
 </head>
 
 <body>
-  <div class="profile-toggle-wrapper">
-    <button class="profile-toggle-btn" onclick="toggleDrawer()" aria-label="Toggle Profile" id="profile-toggle">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-        <path
-          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
-      </svg>
-      <span class="notification-badge" id="profile-badge"></span>
-    </button>
-  </div>
-
-  <div class="drawer-overlay" id="drawer-overlay" onclick="toggleDrawer()"></div>
-  <aside class="right-panel drawer" id="profile-drawer" role="dialog" aria-labelledby="drawer-title" aria-hidden="true">
-    <div class="drawer-header">
-      <h3 id="drawer-title">PAIL Intelligence Profile</h3>
-      <button class="close-drawer" onclick="toggleDrawer()" aria-label="Close">✕</button>
-    </div>
-
-    <div class="panel-tabs">
-      <button class="panel-tab active" onclick="switchTab('profile',this)">Profile</button>
-      <button class="panel-tab" onclick="switchTab('signals',this)">Signals</button>
-      <button class="panel-tab" onclick="switchTab('reco',this)">Reco</button>
-    </div>
-
-    <div class="panel-content">
-      <div class="panel-pane active" id="pane-profile">
-        <div class="p-card">
-          <div class="p-card-title">Live Data Fabric <span class="last-updated" id="last-update-time">Just now</span>
-          </div>
-
-          <div class="section-label">AI Inferred (Probabilistic)</div>
-          <div id="inferred-fields">
-          </div>
-
-          <div class="section-label" style="margin-top:15px">User Confirmed (Deterministic)</div>
-          <div id="confirmed-fields">
-          </div>
-
-          <div class="completion-wrap">
-            <div class="completion-bar">
-              <div class="completion-fill" id="p-comp-fill"></div>
-            </div>
-            <span class="completion-label" id="p-comp-label">0%</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </aside>
-
   <div id="loading-screen">
     <div class="loading-logo">ET</div>
     <div class="loading-sub">AI Concierge · PAIL v4.0 · Local NLP · Booting</div>
@@ -90,9 +42,11 @@
       <div class="pail-chip"><span class="pail-chip-dot"></span><span id="pail-score-chip">PAIL 0%</span></div>
       <button class="clear-session-btn" onclick="clearSession()" title="Clear saved session">↻</button>
       <span class="prime-pill" id="prime-pill" style="display:none;">PRIME</span>
-      <div class="user-avatar-top" id="user-avatar-top">?</div>
+      <div class="user-avatar-top" id="user-avatar-top" onclick="toggleDrawer()" title="Open profile">?</div>
     </div>
   </nav>
+
+  <div class="drawer-overlay" id="drawer-overlay" onclick="toggleDrawer()"></div>
 
   <!-- MAIN -->
   <div class="main">
@@ -186,7 +140,11 @@
     </main>
 
     <!-- RIGHT PANEL -->
-    <aside class="right-panel">
+    <aside class="right-panel drawer" id="profile-drawer" role="dialog" aria-labelledby="drawer-title" aria-hidden="true">
+      <div class="drawer-header">
+        <h3 id="drawer-title">PAIL Profile</h3>
+        <button class="drawer-close-btn" onclick="toggleDrawer()" aria-label="Close profile">✕</button>
+      </div>
       <div class="panel-tabs">
         <button class="panel-tab active" onclick="switchTab('profile',this)">Profile</button>
         <button class="panel-tab" onclick="switchTab('signals',this)">Signals</button>
@@ -217,9 +175,9 @@
                 id="p-products">—</span></div>
             <div class="completion-wrap">
               <div class="completion-bar">
-                <div class="completion-fill" id="p-comp-fill" style="width:0%"></div>
+                <div class="completion-fill" id="p-comp-fill-panel" style="width:0%"></div>
               </div>
-              <span class="completion-label" id="p-comp-label">0%</span>
+              <span class="completion-label" id="p-comp-label-panel">0%</span>
             </div>
           </div>
 
