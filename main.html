@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ET AI Concierge — Production v2 | Economic Times</title>
+<title>ET AI Concierge — Production v4 | Economic Times</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
@@ -12,7 +12,7 @@
 
 <div id="loading-screen">
   <div class="loading-logo">ET</div>
-  <div class="loading-sub">AI Concierge · PAIL v2.4 · Booting</div>
+  <div class="loading-sub">AI Concierge · PAIL v4.0 · Local NLP · Booting</div>
   <div class="loading-bar"><div class="loading-fill" id="ld-bar"></div></div>
   <div class="loading-steps">
     <div class="loading-step">⬡ Initialising PAIL Intelligence Layer</div>
@@ -29,11 +29,12 @@
     <div class="et-badge">ET</div>
     <div>
       <div style="font-size:13px;font-weight:500;">Economic Times</div>
-      <div class="topbar-subtitle">AI Concierge · Production v2</div>
+      <div class="topbar-subtitle">AI Concierge · Production v4 · <span id="live-status" class="live-status-text">Connecting…</span></div>
     </div>
   </div>
   <div class="topbar-right">
     <div class="pail-chip"><span class="pail-chip-dot"></span><span id="pail-score-chip">PAIL 0%</span></div>
+    <button class="clear-session-btn" onclick="clearSession()" title="Clear saved session">↻</button>
     <span class="prime-pill" id="prime-pill" style="display:none;">PRIME</span>
     <div class="user-avatar-top" id="user-avatar-top">?</div>
   </div>
@@ -100,11 +101,14 @@
       <button class="upload-btn" onclick="document.getElementById('portfolio-file-input').click()" title="Upload Portfolio Screenshot">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
       </button>
+      <button class="voice-btn" id="voice-btn" onclick="voice.toggle()" title="Voice input">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+      </button>
       <button class="send-btn" onclick="sendMessage()">
         <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
       </button>
     </div>
-    <div class="input-hint">ET AI Concierge · Powered by PAIL · <span id="agent-mode-hint">Welcome Concierge mode</span></div>
+    <div class="input-hint">ET AI Concierge · Powered by PAIL v4.0 · Local NLP · <span id="agent-mode-hint">Welcome Concierge mode</span></div>
   </div>
 </main>
 

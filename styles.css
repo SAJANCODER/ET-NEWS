@@ -1476,3 +1476,66 @@ body {
     color: #24d4d3;
     text-decoration: underline;
 }
+
+/* ============ VOICE INPUT ============ */
+.voice-btn {
+    width: 36px;
+    height: 36px;
+    background: rgba(232, 93, 36, .12);
+    border: 1px solid rgba(232, 93, 36, .25);
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .2s;
+    flex-shrink: 0;
+    color: var(--coral);
+}
+
+.voice-btn:hover {
+    background: rgba(232, 93, 36, .22);
+    border-color: var(--coral);
+    transform: scale(1.06);
+}
+
+.voice-btn.voice-active {
+    background: rgba(232, 93, 36, .35);
+    border-color: var(--coral);
+    animation: voicePulse 1s infinite;
+    box-shadow: 0 0 12px rgba(232, 93, 36, .4);
+}
+
+@keyframes voicePulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 8px rgba(232,93,36,.3); }
+    50% { transform: scale(1.08); box-shadow: 0 0 16px rgba(232,93,36,.5); }
+}
+
+/* ============ LIVE STATUS ============ */
+.live-status-text {
+    color: var(--teal);
+    font-weight: 500;
+}
+
+/* ============ CLEAR SESSION ============ */
+.clear-session-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255,255,255,.06);
+    border: 1px solid var(--et-border);
+    border-radius: 6px;
+    color: var(--et-muted);
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .2s;
+    font-family: var(--font-body);
+}
+
+.clear-session-btn:hover {
+    background: rgba(239,68,68,.15);
+    border-color: rgba(239,68,68,.3);
+    color: #F87171;
+}

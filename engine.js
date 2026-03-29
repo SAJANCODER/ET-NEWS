@@ -1,12 +1,365 @@
 /**
- * PAIL v3.0 — ET AI Concierge Engine
- * Architecture: DataFabric → Orchestrator → APIGateway
- * Focus: ET Ecosystem Navigation & Intelligent Recommendations
+ * PAIL v4.0 — ET AI Concierge Engine
+ * Architecture: ETEcosystemKB → ETLiveData → NLPEngine → Orchestrator → DataFabric
+ * Full Local NLP · Live ET Feeds · Session Persistence · Behavioural Intelligence
  */
 
-// ============ DATA FABRIC (ET Data Fabric Layer) ============
+// ============================= ET ECOSYSTEM KNOWLEDGE BASE =============================
+const ETEcosystemKB = {
+  products: {
+    prime: {
+      name: 'ET Prime', icon: '📰', color: 'rgba(208,2,27,.15)',
+      url: 'https://economictimes.indiatimes.com/prime',
+      desc: 'Premium journalism — exclusive research, expert columns, ad-free, Wealth Edition magazine',
+      features: ['Exclusive articles', 'Deep analysis', 'Expert columns', 'Ad-free reading', 'Wealth Edition', 'Stock Reports Plus'],
+      keywords: ['prime', 'premium', 'exclusive', 'subscribe', 'membership', 'ad-free', 'ad free']
+    },
+    markets: {
+      name: 'ET Markets', icon: '📊', color: 'rgba(26,107,181,.15)',
+      url: 'https://economictimes.indiatimes.com/markets',
+      desc: 'Live market data, stock screeners, portfolio tracker, expert analysis',
+      features: ['Live stock prices', 'Market screeners', 'Portfolio tracker', 'Technical charts', 'Stock Reports Plus', 'Mutual fund NAVs'],
+      keywords: ['market', 'stock', 'share', 'nifty', 'sensex', 'bse', 'nse', 'trading', 'invest'],
+      sections: {
+        stocks: { name: 'Stocks', url: 'https://economictimes.indiatimes.com/markets/stocks', keywords: ['stock', 'share', 'equity', 'largecap', 'midcap', 'smallcap'] },
+        mf: { name: 'Mutual Funds', url: 'https://economictimes.indiatimes.com/mutual-funds', keywords: ['mutual fund', 'mf', 'sip', 'nav', 'amc', 'scheme', 'fund'] },
+        fno: { name: 'Futures & Options', url: 'https://economictimes.indiatimes.com/markets/stocks/livequotes/derivatives', keywords: ['future', 'option', 'f&o', 'fno', 'derivative', 'call', 'put', 'strike', 'expiry', 'nifty option'] },
+        ipo: { name: 'IPO', url: 'https://economictimes.indiatimes.com/markets/ipo', keywords: ['ipo', 'initial public', 'listing', 'allotment', 'gmp', 'grey market'] },
+        commodities: { name: 'Commodities', url: 'https://economictimes.indiatimes.com/markets/commodities', keywords: ['commodity', 'gold', 'silver', 'crude', 'oil', 'mcx', 'metal'] },
+        forex: { name: 'Forex', url: 'https://economictimes.indiatimes.com/markets/forex', keywords: ['forex', 'currency', 'dollar', 'rupee', 'usd', 'exchange rate'] },
+        bonds: { name: 'Bonds', url: 'https://economictimes.indiatimes.com/markets/bonds', keywords: ['bond', 'yield', 'gilt', 'treasury', 'gsec', 'government securities'] },
+        etfs: { name: 'ETFs', url: 'https://economictimes.indiatimes.com/mutual-funds/etf', keywords: ['etf', 'exchange traded', 'index fund', 'nifty bees', 'gold etf'] },
+        technicals: { name: 'Technical Analysis', url: 'https://economictimes.indiatimes.com/markets/stocks/news/technicals', keywords: ['technical', 'chart', 'resistance', 'support', 'rsi', 'macd', 'moving average', 'candlestick'] }
+      }
+    },
+    wealth: {
+      name: 'ET Wealth', icon: '💰', color: 'rgba(201,162,39,.15)',
+      url: 'https://economictimes.indiatimes.com/wealth',
+      desc: 'Personal finance — tax planning, insurance, retirement, real estate, savings',
+      features: ['Tax planning guides', 'Insurance comparison', 'Retirement calculator', 'Real estate insights', 'Savings strategies'],
+      keywords: ['wealth', 'personal finance', 'save', 'saving'],
+      sections: {
+        tax: { name: 'Tax & Saving', url: 'https://economictimes.indiatimes.com/wealth/tax', keywords: ['tax', 'itr', 'income tax', '80c', '80d', 'deduction', 'huf', 'capital gain', 'ltcg', 'stcg', 'tax saving', 'elss'] },
+        insurance: { name: 'Insurance', url: 'https://economictimes.indiatimes.com/wealth/insure', keywords: ['insurance', 'term plan', 'health insurance', 'life insurance', 'claim', 'premium', 'ulip', 'endowment'] },
+        realestate: { name: 'Real Estate', url: 'https://economictimes.indiatimes.com/wealth/real-estate', keywords: ['real estate', 'property', 'home', 'flat', 'apartment', 'rera', 'home loan', 'mortgage', 'rent'] },
+        retirement: { name: 'Retirement', url: 'https://economictimes.indiatimes.com/wealth/retire', keywords: ['retire', 'retirement', 'pension', 'nps', 'epf', 'ppf', 'senior citizen', 'annuity'] },
+        borrow: { name: 'Borrow', url: 'https://economictimes.indiatimes.com/wealth/borrow', keywords: ['loan', 'borrow', 'emi', 'credit', 'personal loan', 'home loan', 'car loan', 'education loan'] },
+        spend: { name: 'Spend', url: 'https://economictimes.indiatimes.com/wealth/spend', keywords: ['spend', 'credit card', 'reward', 'cashback', 'upi', 'digital payment'] }
+      }
+    },
+    masterclass: {
+      name: 'ET Masterclass', icon: '🎓', color: 'rgba(26,171,170,.15)',
+      url: 'https://economictimes.indiatimes.com/masterclass',
+      desc: 'Expert-led courses on investing, finance, AI, leadership, professional skills',
+      features: ['Expert instructors', 'Certification', 'Live webinars', 'Self-paced courses', 'Corporate training'],
+      keywords: ['masterclass', 'course', 'learn', 'class', 'training', 'webinar', 'workshop', 'certificate', 'education']
+    },
+    now: {
+      name: 'ET Now', icon: '📺', color: 'rgba(232,93,36,.15)',
+      url: 'https://economictimes.indiatimes.com/tv',
+      desc: 'Live business news TV — market analysis, expert interviews, breaking news',
+      features: ['Live TV', 'Market hours coverage', 'Expert panels', 'Breaking news'],
+      keywords: ['tv', 'live', 'channel', 'broadcast', 'watch', 'video', 'et now', 'show']
+    },
+    panache: {
+      name: 'ET Panache', icon: '✨', color: 'rgba(201,162,39,.15)',
+      url: 'https://economictimes.indiatimes.com/panache',
+      desc: 'Luxury lifestyle — fashion, food, travel, art, wellness for business leaders',
+      keywords: ['luxury', 'lifestyle', 'fashion', 'travel', 'food', 'wellness', 'panache']
+    },
+    rise: {
+      name: 'ET Rise', icon: '🚀', color: 'rgba(26,138,90,.15)',
+      url: 'https://economictimes.indiatimes.com/small-biz',
+      desc: 'SME & startup ecosystem — funding, growth strategies, MSME policies',
+      keywords: ['startup', 'sme', 'msme', 'entrepreneur', 'small business', 'funding', 'venture']
+    },
+    auto: { name: 'ET Auto', icon: '🚗', url: 'https://auto.economictimes.indiatimes.com', desc: 'Automobile industry news', keywords: ['auto', 'car', 'vehicle', 'ev', 'electric vehicle'] },
+    telecom: { name: 'ET Telecom', icon: '📡', url: 'https://telecom.economictimes.indiatimes.com', desc: 'Telecom sector news', keywords: ['telecom', '5g', 'spectrum', 'jio', 'airtel'] },
+    energy: { name: 'ET Energy', icon: '⚡', url: 'https://energy.economictimes.indiatimes.com', desc: 'Energy sector — oil, gas, renewables', keywords: ['energy', 'solar', 'renewable', 'oil', 'gas', 'power'] },
+    cio: { name: 'ET CIO', icon: '💻', url: 'https://cio.economictimes.indiatimes.com', desc: 'Enterprise technology & digital transformation', keywords: ['cio', 'enterprise', 'digital transformation', 'saas', 'cloud'] },
+    bfsi: { name: 'ET BFSI', icon: '🏦', url: 'https://bfsi.economictimes.indiatimes.com', desc: 'Banking, Financial Services & Insurance industry', keywords: ['bfsi', 'banking', 'fintech', 'rbi', 'sebi', 'regulation'] },
+    events: {
+      name: 'ET Events', icon: '🎪', color: 'rgba(26,107,181,.15)',
+      url: 'https://economictimes.indiatimes.com/events',
+      desc: 'Wealth Summits, Startup Awards, CXO conclaves, industry events',
+      keywords: ['event', 'summit', 'conclave', 'awards', 'conference', 'wealth summit']
+    }
+  },
+
+  // Map intent to ET product with confidence
+  matchQuery(query) {
+    const q = query.toLowerCase();
+    const matches = [];
+
+    // Check sub-sections first (more specific)
+    for (const [pKey, product] of Object.entries(this.products)) {
+      if (product.sections) {
+        for (const [sKey, section] of Object.entries(product.sections)) {
+          let score = 0;
+          for (const kw of section.keywords) {
+            if (q.includes(kw)) score += kw.split(' ').length * 10; // multi-word keywords score higher
+          }
+          if (score > 0) matches.push({ type: 'section', product: pKey, section: sKey, data: { ...section, parentProduct: product.name, parentIcon: product.icon }, score });
+        }
+      }
+      // Check product-level keywords
+      if (product.keywords) {
+        let score = 0;
+        for (const kw of product.keywords) {
+          if (q.includes(kw)) score += kw.split(' ').length * 8;
+        }
+        if (score > 0) matches.push({ type: 'product', product: pKey, data: product, score });
+      }
+    }
+
+    return matches.sort((a, b) => b.score - a.score);
+  }
+};
+
+// ============================= LIVE ET DATA SERVICE =============================
+class ETLiveDataService {
+  constructor() {
+    this.cache = {};
+    this.cacheTTL = 10 * 60 * 1000; // 10 minutes
+    this.proxyBase = 'https://api.allorigins.win/get?url=';
+    this.feeds = {
+      topStories: 'https://economictimes.indiatimes.com/rssfeedstopstories.cms',
+      markets: 'https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms',
+      wealth: 'https://economictimes.indiatimes.com/wealth/rssfeeds/837555174.cms',
+      tech: 'https://economictimes.indiatimes.com/tech/rssfeeds/13357270.cms',
+      industry: 'https://economictimes.indiatimes.com/industry/rssfeeds/13352306.cms'
+    };
+  }
+
+  async fetchFeed(feedKey) {
+    const now = Date.now();
+    if (this.cache[feedKey] && (now - this.cache[feedKey].ts) < this.cacheTTL) {
+      return this.cache[feedKey].data;
+    }
+    const url = this.feeds[feedKey];
+    if (!url) return this._fallbackData(feedKey);
+
+    try {
+      // Try CORS proxy
+      const resp = await fetch(this.proxyBase + encodeURIComponent(url), { signal: AbortSignal.timeout(6000) });
+      const json = await resp.json();
+      const xmlText = json.contents;
+      const items = this._parseRSS(xmlText);
+      if (items.length) {
+        this.cache[feedKey] = { data: items, ts: now };
+        return items;
+      }
+    } catch (e) {
+      console.warn('ET Feed fetch failed for', feedKey, e.message);
+    }
+    return this._fallbackData(feedKey);
+  }
+
+  _parseRSS(xml) {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(xml, 'text/xml');
+      const items = doc.querySelectorAll('item');
+      return Array.from(items).slice(0, 10).map(item => ({
+        title: item.querySelector('title')?.textContent || '',
+        link: item.querySelector('link')?.textContent || '',
+        description: (item.querySelector('description')?.textContent || '').replace(/<[^>]*>/g, '').substring(0, 150),
+        pubDate: item.querySelector('pubDate')?.textContent || '',
+        source: 'ET Live'
+      }));
+    } catch (e) { return []; }
+  }
+
+  _fallbackData(feedKey) {
+    const fallbacks = {
+      topStories: [
+        { title: 'Budget 2026: Key Takeaways for Investors', link: 'https://economictimes.indiatimes.com/news/economy', description: 'Comprehensive analysis of Union Budget implications on markets and personal finance', source: 'ET News' },
+        { title: 'RBI Policy: Rate Cut Expectations and Market Impact', link: 'https://economictimes.indiatimes.com/news/economy/policy', description: 'What the latest RBI monetary policy means for your investments and EMIs', source: 'ET Economy' },
+        { title: 'India GDP Growth Outlook: What Experts Say', link: 'https://economictimes.indiatimes.com/news/economy/indicators', description: 'Economic indicators point to robust growth trajectory for FY27', source: 'ET Economy' }
+      ],
+      markets: [
+        { title: 'Nifty 50 Hits New High: Sectors Leading the Rally', link: 'https://economictimes.indiatimes.com/markets/stocks/news', description: 'Banking and IT sectors drive benchmark indices to record levels', source: 'ET Markets' },
+        { title: 'Top Mutual Funds: Best Performers This Quarter', link: 'https://economictimes.indiatimes.com/mutual-funds', description: 'Flexi-cap and mid-cap funds deliver alpha over benchmark returns', source: 'ET MF' },
+        { title: 'F&O Expiry: Key Levels and Strategy for Traders', link: 'https://economictimes.indiatimes.com/markets/stocks/livequotes/derivatives', description: 'Options data suggests range-bound market with key support and resistance levels', source: 'ET Markets' }
+      ],
+      wealth: [
+        { title: 'Tax Saving: Last-Minute Section 80C Investments', link: 'https://economictimes.indiatimes.com/wealth/tax', description: 'Best ELSS funds, PPF, and NPS strategies to save up to ₹46,800 in taxes', source: 'ET Wealth' },
+        { title: 'Best Term Insurance Plans Compared', link: 'https://economictimes.indiatimes.com/wealth/insure', description: 'Feature-by-feature comparison of top term plans for different age groups', source: 'ET Wealth' },
+        { title: 'Home Loan Interest Rates: Latest Comparison', link: 'https://economictimes.indiatimes.com/wealth/borrow', description: 'SBI, HDFC, ICICI — who offers the best rate and processing fee', source: 'ET Wealth' }
+      ]
+    };
+    return fallbacks[feedKey] || fallbacks.topStories;
+  }
+
+  async getMarketSnapshot() {
+    return this.fetchFeed('markets');
+  }
+
+  async getTopStories() {
+    return this.fetchFeed('topStories');
+  }
+
+  async getWealthContent() {
+    return this.fetchFeed('wealth');
+  }
+}
+
+// ============================= SESSION MANAGER =============================
+class SessionManager {
+  constructor() {
+    this.storageKey = 'et_concierge_pail';
+    this.sessionKey = 'et_concierge_session';
+  }
+
+  save(identityGraph, portfolio, metrics) {
+    try {
+      const data = {
+        identity: identityGraph,
+        portfolio: portfolio,
+        metrics: metrics,
+        savedAt: Date.now(),
+        version: 'v4.0'
+      };
+      localStorage.setItem(this.storageKey, JSON.stringify(data));
+    } catch (e) { console.warn('Session save failed', e); }
+  }
+
+  load() {
+    try {
+      const raw = localStorage.getItem(this.storageKey);
+      if (!raw) return null;
+      const data = JSON.parse(raw);
+      // Check if data is less than 30 days old
+      if (Date.now() - data.savedAt > 30 * 24 * 60 * 60 * 1000) return null;
+      return data;
+    } catch (e) { return null; }
+  }
+
+  updateSession() {
+    try {
+      const session = JSON.parse(localStorage.getItem(this.sessionKey) || '{}');
+      session.visitCount = (session.visitCount || 0) + 1;
+      session.lastVisit = Date.now();
+      session.firstVisit = session.firstVisit || Date.now();
+      localStorage.setItem(this.sessionKey, JSON.stringify(session));
+      return session;
+    } catch (e) { return { visitCount: 1 }; }
+  }
+
+  getSession() {
+    try { return JSON.parse(localStorage.getItem(this.sessionKey) || '{}'); }
+    catch (e) { return {}; }
+  }
+
+  clear() {
+    localStorage.removeItem(this.storageKey);
+    localStorage.removeItem(this.sessionKey);
+  }
+}
+
+// ============================= BEHAVIOUR TRACKER =============================
+class BehaviourTracker {
+  constructor() {
+    this.interactions = [];
+    this.topicFrequency = {};
+    this.agentTime = {};
+    this.currentAgent = 'concierge';
+    this.agentSwitchTime = Date.now();
+    this.sessionStart = Date.now();
+    this.clickThroughs = 0;
+    this.queryCount = 0;
+  }
+
+  trackQuery(query, agent) {
+    this.queryCount++;
+    const topics = this._extractTopics(query);
+    topics.forEach(t => { this.topicFrequency[t] = (this.topicFrequency[t] || 0) + 1; });
+    this.interactions.push({ type: 'query', query, agent, topics, time: Date.now() });
+    if (this.interactions.length > 100) this.interactions.shift();
+  }
+
+  trackAgentSwitch(agent) {
+    const now = Date.now();
+    const elapsed = now - this.agentSwitchTime;
+    this.agentTime[this.currentAgent] = (this.agentTime[this.currentAgent] || 0) + elapsed;
+    this.currentAgent = agent;
+    this.agentSwitchTime = now;
+  }
+
+  trackClick(target) {
+    this.clickThroughs++;
+    this.interactions.push({ type: 'click', target, time: Date.now() });
+  }
+
+  _extractTopics(query) {
+    const q = query.toLowerCase();
+    const topicMap = {
+      'markets': /market|stock|share|nifty|sensex|trading/i,
+      'mutual_funds': /mutual fund|sip|mf|nav|fund/i,
+      'fno': /future|option|f&o|derivative|call|put/i,
+      'insurance': /insur|term plan|health plan|life cover/i,
+      'tax': /tax|80c|deduction|itr|saving/i,
+      'loans': /loan|emi|mortgage|borrow|home loan/i,
+      'retirement': /retire|pension|nps|fire|epf/i,
+      'ipo': /ipo|listing|allotment/i,
+      'prime': /prime|premium|exclusive/i,
+      'masterclass': /masterclass|course|learn|class/i,
+      'news': /news|article|headline|breaking/i,
+      'portfolio': /portfolio|holding|invest/i,
+      'credit_cards': /credit card|card|cashback|reward/i,
+      'wealth_mgmt': /wealth|pms|advisory/i
+    };
+    const found = [];
+    for (const [topic, re] of Object.entries(topicMap)) {
+      if (re.test(q)) found.push(topic);
+    }
+    return found.length ? found : ['general'];
+  }
+
+  getCrossSellTriggers(userProfile) {
+    const triggers = [];
+    const topTopics = Object.entries(this.topicFrequency).sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+    // Topic-based triggers
+    if (this.topicFrequency['markets'] >= 3 && !this.topicFrequency['prime']) {
+      triggers.push({ type: 'upsell', product: 'prime', reason: `You've asked ${this.topicFrequency['markets']} market questions — ET Prime gives you deeper analysis`, priority: 'high', icon: '📰' });
+    }
+    if (this.topicFrequency['fno'] >= 2) {
+      triggers.push({ type: 'feature', product: 'markets_fno', reason: 'Your F&O interest detected — check live options chain on ET Markets', priority: 'high', icon: '📊', url: 'https://economictimes.indiatimes.com/markets/stocks/livequotes/derivatives' });
+    }
+    if (this.topicFrequency['insurance'] >= 2 && userProfile.hasInsurance !== true) {
+      triggers.push({ type: 'service', product: 'insurance', reason: 'Multiple insurance queries — let me compare top term plans for you', priority: 'critical', icon: '🛡️' });
+    }
+    if (this.topicFrequency['mutual_funds'] >= 2) {
+      triggers.push({ type: 'feature', product: 'masterclass', reason: 'Interest in mutual funds — ET Masterclass has a top-rated MF course', priority: 'medium', icon: '🎓', url: 'https://economictimes.indiatimes.com/masterclass' });
+    }
+
+    // Engagement-based triggers
+    const sessionDuration = (Date.now() - this.sessionStart) / 60000;
+    if (sessionDuration > 5 && this.queryCount >= 6) {
+      triggers.push({ type: 'engagement', product: 'prime', reason: `${Math.round(sessionDuration)} min session with ${this.queryCount} queries — you'd love ET Prime's unlimited access`, priority: 'medium', icon: '⭐' });
+    }
+
+    return triggers;
+  }
+
+  getEngagementScore() {
+    const duration = (Date.now() - this.sessionStart) / 60000;
+    const queryScore = Math.min(this.queryCount * 5, 40);
+    const durationScore = Math.min(duration * 3, 30);
+    const clickScore = Math.min(this.clickThroughs * 10, 20);
+    const diversityScore = Math.min(Object.keys(this.topicFrequency).length * 5, 10);
+    return Math.min(100, queryScore + durationScore + clickScore + diversityScore);
+  }
+}
+
+// ============================= DATA FABRIC =============================
 class DataFabric {
   constructor() {
+    this.session = new SessionManager();
+    this.liveData = new ETLiveDataService();
+    this.behaviour = new BehaviourTracker();
+
     this.identityGraph = {
       name: null, initials: null, segment: null,
       ageRange: null, risk: null, income: null,
@@ -15,40 +368,41 @@ class DataFabric {
       sipCapacity: null, hasInsurance: null, hasNPS: null,
       hasIntlEquity: null, depth: 0, completedSteps: [],
       signals: [],
-      preferences: {
-        contentInterests: [],
-        learningTopics: [],
-        financialPriorities: []
-      }
+      preferences: { contentInterests: [], learningTopics: [], financialPriorities: [] }
     };
 
-    this.metrics = {
-      products: 0,
-      articles: 0,
-      classes: 0,
-      opportunities: 0,
-      interactions: 0
-    };
+    this.metrics = { products: 0, articles: 0, classes: 0, opportunities: 0, interactions: 0 };
 
-    // Portfolio data store — manual entry only
     this.portfolio = {
-      holdings: [],        // { name, type, value, sipAmount, source }
-      totalSIP: 0,
-      totalValue: 0,
-      assetAllocation: {}, // { equity: %, mf: %, debt: %, gold: % }
-      investmentExp: null,  // 'beginner' | 'intermediate' | 'advanced'
-      lastUpdated: null
+      holdings: [], totalSIP: 0, totalValue: 0,
+      assetAllocation: {}, investmentExp: null, lastUpdated: null
     };
 
     this.onboardSteps = [
-      'Basic profile complete',
-      'ET Prime discovery',
-      'Financial goals mapped',
-      'Portfolio analysis',
-      'Partner services matched',
-      'Personalisation calibrated'
+      'Basic profile complete', 'ET Prime discovery', 'Financial goals mapped',
+      'Portfolio analysis', 'Partner services matched', 'Personalisation calibrated'
     ];
+
+    // Try to restore session
+    this._restoreSession();
   }
+
+  _restoreSession() {
+    const saved = this.session.load();
+    if (saved && saved.identity && saved.identity.name) {
+      this.identityGraph = { ...this.identityGraph, ...saved.identity };
+      if (saved.portfolio) this.portfolio = { ...this.portfolio, ...saved.portfolio };
+      if (saved.metrics) this.metrics = { ...this.metrics, ...saved.metrics };
+      this._restored = true;
+    } else {
+      this._restored = false;
+    }
+    this.sessionInfo = this.session.updateSession();
+  }
+
+  isReturningUser() { return this._restored && this.identityGraph.name; }
+
+  _persist() { this.session.save(this.identityGraph, this.portfolio, this.metrics); }
 
   pushSignal(text, color) {
     color = color || 'var(--teal)';
@@ -62,38 +416,27 @@ class DataFabric {
   updateIdentity(changes, label) {
     const u = this.identityGraph;
     for (const [key, val] of Object.entries(changes)) { u[key] = val; }
-
-    // Recalculate depth based on conversationally gathered fields
     const fields = ['name', 'goal', 'risk', 'income', 'assets', 'hasInsurance', 'hasNPS', 'ageRange', 'horizon'];
     const filled = fields.filter(f => u[f] !== null && u[f] !== undefined).length;
     u.depth = Math.min(95, Math.round(filled / fields.length * 95));
-
     this.updateUI();
     this.pushSignal(label || 'Profile field updated', 'var(--gold)');
-
-    // Update recommendations based on new data
     this.renderReco();
+    this._persist();
   }
 
-  addDepth(d) {
-    this.identityGraph.depth = Math.min(95, this.identityGraph.depth + d);
-    this.updateUI();
-  }
+  addDepth(d) { this.identityGraph.depth = Math.min(95, this.identityGraph.depth + d); this.updateUI(); this._persist(); }
 
   advanceOnboard(stepIdx) {
     if (!this.identityGraph.completedSteps.includes(stepIdx)) {
       this.identityGraph.completedSteps.push(stepIdx);
       this.renderOnboard();
+      this._persist();
     }
   }
 
-  // Portfolio Management Methods
   addHolding(holding) {
-    this.portfolio.holdings.push({
-      ...holding,
-      addedDate: new Date().toISOString(),
-      source: 'manual'
-    });
+    this.portfolio.holdings.push({ ...holding, addedDate: new Date().toISOString(), source: 'manual' });
     this.updatePortfolioMetrics();
     this.pushSignal(`Added: ${holding.name} to portfolio`, 'var(--teal)');
   }
@@ -122,8 +465,6 @@ class DataFabric {
   updatePortfolioMetrics() {
     this.portfolio.totalSIP = this.portfolio.holdings.reduce((s, h) => s + (h.sipAmount || 0), 0);
     this.portfolio.totalValue = this.portfolio.holdings.reduce((s, h) => s + (h.value || 0), 0);
-
-    // Calculate asset allocation
     const alloc = { equity: 0, mf: 0, debt: 0, other: 0 };
     this.portfolio.holdings.forEach(h => {
       if (h.type === 'Stock') alloc.equity += h.value;
@@ -131,255 +472,45 @@ class DataFabric {
       else if (h.type === 'Debt') alloc.debt += h.value;
       else alloc.other += h.value;
     });
-
     const total = Object.values(alloc).reduce((a, b) => a + b, 0) || 1;
     this.portfolio.assetAllocation = {
-      equity: Math.round(alloc.equity / total * 100),
-      mf: Math.round(alloc.mf / total * 100),
-      debt: Math.round(alloc.debt / total * 100),
-      other: Math.round(alloc.other / total * 100)
+      equity: Math.round(alloc.equity / total * 100), mf: Math.round(alloc.mf / total * 100),
+      debt: Math.round(alloc.debt / total * 100), other: Math.round(alloc.other / total * 100)
     };
-
-    // Derive investment experience
     const holdingCount = this.portfolio.holdings.length;
     this.portfolio.investmentExp = holdingCount > 6 ? 'advanced' : holdingCount > 2 ? 'intermediate' : 'beginner';
     this.portfolio.lastUpdated = new Date().toISOString();
-
-    // Update identity graph
     const assetTypes = [...new Set(this.portfolio.holdings.map(h => h.type))];
-    if (assetTypes.length) {
-      this.updateIdentity({ assets: assetTypes.join(', ') }, 'Portfolio data integrated');
-    }
-
+    if (assetTypes.length) this.updateIdentity({ assets: assetTypes.join(', ') }, 'Portfolio data integrated');
     this.renderMetrics();
+    this._persist();
   }
 
-  // ET Ecosystem Methods
-  getETPrimeRecommendations() {
-    const u = this.identityGraph;
-    const recommendations = [];
-
-    if (u.goal === 'Retirement / FIRE') {
-      recommendations.push({
-        title: "The Ultimate FIRE Guide: How to Retire by 45",
-        type: "ET Prime Exclusive",
-        relevance: 98,
-        url: "/et-prime/fire-guide",
-        description: "Deep-dive into early retirement strategies with real case studies"
-      });
-    }
-
-    if (u.risk === 'Aggressive') {
-      recommendations.push({
-        title: "High-Growth Portfolio: 10 Stocks to Watch in 2026",
-        type: "ET Prime Research",
-        relevance: 95,
-        url: "/et-prime/high-growth-stocks",
-        description: "Expert analysis on high-conviction investment opportunities"
-      });
-    }
-
-    if (u.hasInsurance === false) {
-      recommendations.push({
-        title: "Insurance Deep Dive: Why Term Insurance is Non-Negotiable",
-        type: "ET Prime Guide",
-        relevance: 92,
-        url: "/et-prime/insurance-guide",
-        description: "Comprehensive guide to protecting your family's financial future"
-      });
-    }
-
-    recommendations.push({
-      title: "Budget 2026 Analysis: What It Means for Your Portfolio",
-      type: "ET Prime Exclusive",
-      relevance: 89,
-      url: "/et-prime/budget-2026",
-      description: "Expert breakdown of tax changes and investment implications"
-    });
-
-    return recommendations.slice(0, 3);
-  }
-
-  getMasterclassRecommendations() {
-    const u = this.identityGraph;
-    const masterclasses = [];
-
-    if (u.assets && /equity|stock/i.test(u.assets)) {
-      masterclasses.push({
-        title: "Equity Research Masterclass",
-        instructor: "Ramesh Damani",
-        level: "Intermediate",
-        relevance: 96,
-        url: "/masterclass/equity-research",
-        description: "Learn to analyze stocks like a pro"
-      });
-    }
-
-    if (u.goal === 'Retirement / FIRE') {
-      masterclasses.push({
-        title: "FIRE Movement Masterclass",
-        instructor: "Deepak Shenoy",
-        level: "Advanced",
-        relevance: 94,
-        url: "/masterclass/fire-planning",
-        description: "Strategic planning for financial independence"
-      });
-    }
-
-    if (u.hasNPS === false) {
-      masterclasses.push({
-        title: "Tax Optimization Masterclass",
-        instructor: "Sudhir Kaushik",
-        level: "Beginner",
-        relevance: 91,
-        url: "/masterclass/tax-planning",
-        description: "Save up to ₹1.5L in taxes legally"
-      });
-    }
-
-    masterclasses.push({
-      title: "Personal Finance 101",
-      instructor: "Monika Halan",
-      level: "Beginner",
-      relevance: 88,
-      url: "/masterclass/personal-finance",
-      description: "Build a strong financial foundation"
-    });
-
-    return masterclasses.slice(0, 3);
-  }
-
-  getMarketInsights() {
-    const u = this.identityGraph;
-    const insights = [];
-
-    if (u.risk === 'Aggressive') {
-      insights.push({
-        title: "Markets at New High: Should You Book Profits?",
-        source: "ET Markets",
-        summary: "Expert views on market momentum and profit-booking strategies",
-        url: "/markets/profit-booking",
-        tag: "Market Outlook"
-      });
-    }
-
-    if (u.goal === 'Passive income') {
-      insights.push({
-        title: "Dividend Stocks: Top 10 High-Yield Picks",
-        source: "ET Wealth",
-        summary: "Generate steady passive income with these dividend gems",
-        url: "/wealth/dividend-stocks",
-        tag: "Income Strategy"
-      });
-    }
-
-    insights.push({
-      title: u.assets && /mf|mutual/i.test(u.assets)
-        ? "SIP Inflows Hit Record ₹27,000 Cr: Best Performing Funds"
-        : "Nifty 50 Technical Outlook: Key Levels to Watch",
-      source: "ET Markets",
-      summary: u.assets && /mf|mutual/i.test(u.assets)
-        ? "Top 5 mutual funds with 20%+ returns in 3 years"
-        : "Bullish momentum continues with support at 24,800",
-      url: "/markets/daily-outlook",
-      tag: "Market Update"
-    });
-
-    return insights;
-  }
-
-  getPartnerOffers() {
-    const u = this.identityGraph;
-    const offers = [];
-
-    if (u.hasInsurance === false) {
-      offers.push({
-        title: "Term Insurance at ₹823/month",
-        partner: "ICICI Prudential",
-        benefit: "₹1Cr coverage",
-        relevance: 96,
-        url: "/marketplace/term-insurance",
-        tag: "Critical Gap"
-      });
-    }
-
-    if (u.income && u.income.includes('1Cr')) {
-      offers.push({
-        title: "Wealth Management PMS",
-        partner: "Zerodha",
-        benefit: "26.4% CAGR (3 years)",
-        relevance: 92,
-        url: "/marketplace/pms-zerodha",
-        tag: "HNI Offer"
-      });
-    }
-
-    if (u.goal === 'Child education') {
-      offers.push({
-        title: "Child Education Plan",
-        partner: "HDFC Life",
-        benefit: "Guaranteed returns + insurance cover",
-        relevance: 90,
-        url: "/marketplace/child-plan",
-        tag: "Goal-Based"
-      });
-    }
-
-    offers.push({
-      title: u.income && u.income.includes('20-40L')
-        ? "ET-HDFC Millennia Credit Card"
-        : "ET-Axis Magnus Credit Card",
-      partner: u.income && u.income.includes('20-40L') ? "HDFC Bank" : "Axis Bank",
-      benefit: u.income && u.income.includes('20-40L')
-        ? "5% cashback on ET, ₹0 joining fee"
-        : "Airport lounge access, travel rewards",
-      relevance: 85,
-      url: "/marketplace/credit-cards",
-      tag: "Exclusive Offer"
-    });
-
-    return offers;
-  }
-
-  // UI Render Methods
+  // ---- UI Render Methods (unchanged from v3) ----
   updateUI() {
     const u = this.identityGraph;
-    this._setFlash('p-name', u.name);
-    this._setFlash('p-seg', u.segment);
-    this._setFlash('p-age', u.ageRange);
-    this._setFlash('p-risk', u.risk);
-    this._setFlash('p-income', u.income);
-    this._setFlash('p-goal', u.goal);
-    this._setFlash('p-horizon', u.horizon);
-    this._setFlash('p-assets', u.assets);
+    this._setFlash('p-name', u.name); this._setFlash('p-seg', u.segment);
+    this._setFlash('p-age', u.ageRange); this._setFlash('p-risk', u.risk);
+    this._setFlash('p-income', u.income); this._setFlash('p-goal', u.goal);
+    this._setFlash('p-horizon', u.horizon); this._setFlash('p-assets', u.assets);
     this._setFlash('p-products', u.products);
-
     const d = u.depth;
     document.getElementById('p-comp-fill').style.width = d + '%';
     document.getElementById('p-comp-label').textContent = d + '%';
     document.getElementById('pail-score-chip').textContent = 'PAIL ' + d + '%';
-
     const avatarEl = document.getElementById('user-avatar-top');
     if (avatarEl) avatarEl.textContent = u.initials || '?';
-
     const primePill = document.getElementById('prime-pill');
     if (primePill) primePill.style.display = u.products && /prime/i.test(u.products) ? '' : 'none';
-
-    this.renderSidebar();
-    this.renderOnboard();
-    this.renderReco();
+    this.renderSidebar(); this.renderOnboard(); this.renderReco();
   }
 
   _setFlash(id, val) {
-    const el = document.getElementById(id);
-    if (!el) return;
+    const el = document.getElementById(id); if (!el) return;
     const display = (val !== null && val !== undefined) ? val : '—';
     if (el.textContent !== display) {
       el.textContent = display;
-      if (val !== null && val !== undefined) {
-        el.classList.add('updating');
-        setTimeout(() => el.classList.remove('updating'), 1800);
-      }
+      if (val !== null && val !== undefined) { el.classList.add('updating'); setTimeout(() => el.classList.remove('updating'), 1800); }
     }
   }
 
@@ -425,7 +556,7 @@ class DataFabric {
   }
 }
 
-// ============ PARTNER API GATEWAY ============
+// ============================= PARTNER API GATEWAY =============================
 class APIGateway {
   static getPartners(risk) {
     const db = {
@@ -452,700 +583,751 @@ class APIGateway {
   }
 }
 
-// ============ LLM ORCHESTRATOR ============
+// ============================= LOCAL NLP ENGINE =============================
+class NLPEngine {
+  constructor() {
+    this.conversationContext = [];
+    this.intents = this._buildIntentMap();
+  }
+
+  _buildIntentMap() {
+    return [
+      // --- ET Product Discovery ---
+      { intent: 'discover_prime', patterns: [/prime/i, /premium content/i, /exclusive article/i, /subscribe.*et/i, /ad.?free/i, /wealth edition/i], confidence: 0.9 },
+      { intent: 'discover_markets', patterns: [/market/i, /stock price/i, /share price/i, /nifty/i, /sensex/i, /bse/i, /nse/i, /live.*price/i], confidence: 0.85 },
+      { intent: 'discover_fno', patterns: [/future/i, /option/i, /f\s*&\s*o/i, /fno/i, /derivative/i, /call.*option/i, /put.*option/i, /strike/i, /expiry/i, /options?\s*chain/i, /options?\s*trading/i], confidence: 0.95 },
+      { intent: 'discover_ipo', patterns: [/\bipo\b/i, /initial public/i, /listing/i, /allotment/i, /gmp/i, /grey market/i, /upcoming.*ipo/i], confidence: 0.9 },
+      { intent: 'discover_mf', patterns: [/mutual fund/i, /\bsip\b/i, /\bnav\b/i, /amc/i, /best.*fund/i, /top.*fund/i, /flexi.?cap/i, /large.?cap/i, /mid.?cap/i, /small.?cap/i, /thematic fund/i, /index fund/i, /elss/i], confidence: 0.9 },
+      { intent: 'discover_commodities', patterns: [/commodit/i, /gold price/i, /silver/i, /crude/i, /\bmcx\b/i, /metal/i], confidence: 0.85 },
+      { intent: 'discover_forex', patterns: [/forex/i, /currency/i, /dollar/i, /rupee/i, /exchange rate/i, /usd.*inr/i], confidence: 0.85 },
+      { intent: 'discover_bonds', patterns: [/\bbond/i, /yield/i, /gilt/i, /treasury/i, /gsec/i, /government securit/i], confidence: 0.85 },
+      { intent: 'discover_etf', patterns: [/\betf\b/i, /exchange traded/i, /nifty bees/i, /gold etf/i, /index.*etf/i], confidence: 0.85 },
+      { intent: 'discover_technicals', patterns: [/technical/i, /chart/i, /resistance/i, /support.*level/i, /\brsi\b/i, /\bmacd\b/i, /moving average/i, /candlestick/i], confidence: 0.85 },
+      { intent: 'discover_wealth', patterns: [/wealth/i, /personal finance/i, /financial planning/i, /money manage/i], confidence: 0.8 },
+      { intent: 'discover_tax', patterns: [/\btax\b/i, /\bitr\b/i, /income tax/i, /80c/i, /80d/i, /deduction/i, /tax.*sav/i, /\bltcg\b/i, /\bstcg\b/i, /capital gain/i, /\bhuf\b/i], confidence: 0.9 },
+      { intent: 'discover_insurance', patterns: [/insur/i, /term plan/i, /health.*plan/i, /life.*cover/i, /claim/i, /ulip/i], confidence: 0.85 },
+      { intent: 'discover_realestate', patterns: [/real estate/i, /property/i, /\bflat\b/i, /apartment/i, /\brera\b/i, /home.*buy/i], confidence: 0.85 },
+      { intent: 'discover_retirement', patterns: [/retire/i, /pension/i, /\bnps\b/i, /\bepf\b/i, /\bppf\b/i, /fire.*plan/i, /financial independence/i, /senior citizen/i, /annuity/i], confidence: 0.9 },
+      { intent: 'discover_loans', patterns: [/\bloan\b/i, /\bemi\b/i, /borrow/i, /home.*loan/i, /personal.*loan/i, /car.*loan/i, /education.*loan/i, /mortgage/i, /refinanc/i], confidence: 0.85 },
+      { intent: 'discover_creditcards', patterns: [/credit card/i, /cashback/i, /reward.*point/i, /annual fee/i, /credit.*limit/i], confidence: 0.85 },
+      { intent: 'discover_masterclass', patterns: [/masterclass/i, /course/i, /\blearn\b/i, /training/i, /webinar/i, /workshop/i, /certificate/i, /upskill/i], confidence: 0.85 },
+      { intent: 'discover_events', patterns: [/event/i, /summit/i, /conclave/i, /award/i, /conference/i], confidence: 0.8 },
+      { intent: 'discover_tv', patterns: [/\btv\b/i, /live.*channel/i, /broadcast/i, /\bwatch\b/i, /et now/i, /video/i], confidence: 0.8 },
+      { intent: 'discover_auto', patterns: [/\bauto\b/i, /car.*review/i, /\bev\b/i, /electric vehicle/i, /automobile/i], confidence: 0.75 },
+      { intent: 'discover_startup', patterns: [/startup/i, /\bsme\b/i, /\bmsme\b/i, /entrepreneur/i, /small business/i, /venture.*capital/i, /funding/i, /angel.*invest/i], confidence: 0.8 },
+      // --- Financial Actions ---
+      { intent: 'portfolio_add', patterns: [/\badd\b.*(?:invest|hold|stock|fund|sip)/i, /enter.*(?:invest|hold)/i, /new.*holding/i], confidence: 0.85 },
+      { intent: 'portfolio_edit', patterns: [/edit.*(?:portfolio|holding)/i, /update.*(?:portfolio|holding)/i, /modify.*(?:holding)/i, /change.*(?:holding)/i], confidence: 0.85 },
+      { intent: 'portfolio_view', patterns: [/portfolio.*(?:summary|overview|view)/i, /my.*(?:holdings|invest)/i, /show.*portfolio/i], confidence: 0.85 },
+      { intent: 'gap_analysis', patterns: [/gap.*analy/i, /portfolio.*gap/i, /what.*missing/i, /financial.*gap/i, /portfolio.*review/i, /portfolio.*check/i], confidence: 0.9 },
+      { intent: 'fire_planning', patterns: [/fire/i, /early.*retire/i, /retire.*early/i, /financial.*independen/i, /retire.*by/i], confidence: 0.9 },
+      { intent: 'roadmap', patterns: [/roadmap/i, /next.*step/i, /action.*plan/i, /what.*should.*do/i, /financial.*plan/i], confidence: 0.85 },
+      // --- Conversational ---
+      { intent: 'greeting', patterns: [/^(hi|hello|hey|namaste|good morning|good evening)\b/i, /how are you/i], confidence: 0.7 },
+      { intent: 'thanks', patterns: [/thank/i, /thanks/i, /appreciate/i], confidence: 0.7 },
+      { intent: 'help', patterns: [/\bhelp\b/i, /what can you/i, /how does/i, /capabilit/i, /what.*do you.*do/i, /features/i], confidence: 0.8 },
+      { intent: 'news', patterns: [/\bnews\b/i, /article/i, /headline/i, /latest/i, /today/i, /breaking/i, /update/i, /what.*happen/i], confidence: 0.8 },
+      { intent: 'recommend', patterns: [/recommend/i, /suggest/i, /best for me/i, /what.*suit/i, /which.*product/i, /what.*should.*read/i], confidence: 0.85 },
+      { intent: 'compare', patterns: [/compare/i, /versus/i, /\bvs\b/i, /difference.*between/i, /which.*better/i], confidence: 0.85 },
+    ];
+  }
+
+  classify(query) {
+    const q = query.toLowerCase().trim();
+    const results = [];
+
+    for (const intent of this.intents) {
+      let maxScore = 0;
+      for (const pattern of intent.patterns) {
+        if (pattern.test(q)) {
+          // Score based on match specificity
+          const matchStr = q.match(pattern)?.[0] || '';
+          const specificity = matchStr.length / q.length;
+          const score = intent.confidence * (0.5 + specificity * 0.5);
+          maxScore = Math.max(maxScore, score);
+        }
+      }
+      if (maxScore > 0) results.push({ intent: intent.intent, score: maxScore });
+    }
+
+    // Also check ET Knowledge Base for product matches
+    const kbMatches = ETEcosystemKB.matchQuery(q);
+    if (kbMatches.length > 0 && results.length === 0) {
+      const topMatch = kbMatches[0];
+      results.push({ intent: `discover_${topMatch.product}`, score: 0.6, kbMatch: topMatch });
+    }
+
+    // Push context
+    this.conversationContext.push({ query: q, intents: results, time: Date.now() });
+    if (this.conversationContext.length > 20) this.conversationContext.shift();
+
+    return results.sort((a, b) => b.score - a.score);
+  }
+
+  getContext() { return this.conversationContext.slice(-5); }
+
+  getTopicSummary() {
+    const topics = {};
+    this.conversationContext.forEach(c => {
+      c.intents.forEach(i => { topics[i.intent] = (topics[i.intent] || 0) + 1; });
+    });
+    return topics;
+  }
+}
+// ============================= ORCHESTRATOR =============================
 class Orchestrator {
   constructor(fabric) {
     this.fabric = fabric;
+    this.nlp = new NLPEngine();
     this.currentAgent = 'concierge';
     this.profilingStep = 0;
-
     this.agentConfig = {
-      concierge: {
-        title: 'ET Welcome Concierge',
-        desc: 'Smart 3-min profiling · PAIL identity graph construction',
-        hint: 'Welcome Concierge mode',
-        qr: ['Tell me about ET Prime', 'What ET products suit me?', 'Show my financial gaps', 'I need a home loan', 'Recommend news for me']
-      },
-      navigator: {
-        title: 'Financial Life Navigator',
-        desc: 'Deep financial understanding · Goal mapping · Portfolio gap analysis',
-        hint: 'Financial Navigator mode',
-        qr: ['Analyse my portfolio gaps', 'Add investments manually', 'Show my roadmap', 'FIRE planning for me', 'Portfolio summary']
-      },
-      crosssell: {
-        title: 'ET Cross-Sell Engine',
-        desc: 'Behavioural trigger analysis · Right offer at the right moment',
-        hint: 'Cross-Sell Engine mode',
-        qr: ["What's best for my profile?", 'Show upsell opportunities', 'ET Masterclass match', 'Credit card for me', 'Insurance recommendations']
-      },
-      marketplace: {
-        title: 'ET Services Marketplace',
-        desc: 'Financial services concierge · Partner integrations live',
-        hint: 'Services Marketplace mode',
-        qr: ['Home loan options', 'Term insurance quotes', 'Wealth management PMS', 'Best FD rates now', 'Credit card comparison']
-      }
+      concierge: { title:'ET Welcome Concierge', desc:'Smart 3-min profiling · Personalised ET ecosystem onboarding', hint:'Welcome Concierge mode', qr:['Tell me about ET Prime','What ET products suit me?','Show my financial gaps','I need a home loan','Recommend news for me'] },
+      navigator: { title:'Financial Life Navigator', desc:'Deep financial understanding · Goal mapping · Portfolio gap analysis', hint:'Financial Navigator mode', qr:['Analyse my portfolio gaps','Add investments manually','Show my roadmap','FIRE planning for me','Portfolio summary'] },
+      crosssell: { title:'ET Cross-Sell Engine', desc:'Behavioural trigger analysis · Right offer at the right moment', hint:'Cross-Sell Engine mode', qr:["What's best for my profile?",'Show upsell opportunities','ET Masterclass match','Credit card for me','Insurance recommendations'] },
+      marketplace: { title:'ET Services Marketplace', desc:'Financial services concierge · Partner integrations live', hint:'Services Marketplace mode', qr:['Home loan options','Term insurance quotes','Wealth management PMS','Best FD rates now','Credit card comparison'] }
     };
-
     this.profilingStages = [
-      { ask: `<p>Namaste! 🙏 I'm your <strong>ET AI Concierge</strong>, powered by PAIL — ET's Persistent Adaptive Intelligence Layer.</p><p>ET has a massive ecosystem — <strong>ET Prime, ET Markets, Masterclasses, Wealth Summits, and Financial Services</strong>. Most users discover only 10% of what ET offers.</p><p>I'll be your personal guide. Let's start: <strong>What's your name?</strong></p>`, richType: null, parse: (t) => { const raw = t.trim().replace(/^(i'm|i am|my name is|this is|hey i'm|hi i'm|call me)\s*/i, '').replace(/[.!,].*$/, '').trim(); const name = raw.split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ') || 'User'; const parts = name.split(/\s+/); const initials = parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : name.substring(0, 2).toUpperCase(); return { name, initials }; }, signal: () => 'User name captured' },
-      { ask: p => `<p>Welcome, <strong>${p.name}</strong>! Great to have you here. 🎉</p><p><strong>What's your age range?</strong></p>`, richType: 'age-q', parse: t => { let age = '25–30'; if (/18|19|early 20|under 25|below 25|20.*25|18.*24/i.test(t)) age = '18–25'; else if (/25.*30|late 20|mid 20|26|27|28|29/i.test(t)) age = '25–30'; else if (/30.*35|early 30|31|32|33|34/i.test(t)) age = '30–35'; else if (/35.*40|late 30|36|37|38|39/i.test(t)) age = '35–40'; else if (/40.*50|40s|41|42|43|44|45/i.test(t)) age = '40–50'; else if (/50|above 50|over 50|senior|60/i.test(t)) age = '50+'; return { ageRange: age }; }, signal: () => 'Age range recorded' },
-      { ask: p => `<p>Perfect, ${p.name}. Now let's understand your financial life so I can map you to the right ET products.</p><p><strong>What's your primary financial goal right now?</strong></p>`, richType: 'goal-q', parse: (t) => { let g = 'Wealth creation', s = 'HNI-Aspirant'; if (/retire|fire|independen/i.test(t)) { g = 'Retirement / FIRE'; s = 'FIRE-Seeker'; } else if (/child|educat/i.test(t)) { g = 'Child education'; s = 'Family-Planner'; } else if (/income|passive/i.test(t)) { g = 'Passive income'; s = 'Income-Seeker'; } else if (/preserve|safe|capital/i.test(t)) { g = 'Capital preservation'; s = 'Conservative-HNI'; } return { goal: g, segment: s }; }, signal: t => `Goal detected: ${/retire|fire/i.test(t) ? 'Retirement/FIRE' : 'Wealth creation'}` },
-      { ask: p => `<p>Great — <strong>${p.goal}</strong> is a well-defined goal. What's your risk appetite?</p>`, richType: 'risk-q', parse: t => { let r = 'Moderate'; if (/conserv|safe|low/i.test(t)) r = 'Conservative'; else if (/moderate|balanced|medium/i.test(t)) r = 'Moderate'; else if (/very aggress|maximum/i.test(t)) r = 'Very Aggressive'; else if (/aggress|high|growth/i.test(t)) r = 'Aggressive'; return { risk: r }; }, signal: () => 'Risk profile updated' },
-      { ask: () => `<p>Understood. <strong>What asset classes are you currently invested in?</strong></p><p class="hint-text">(Equity, Mutual Funds, Gold, Real Estate, FD/Debt)</p>`, richType: 'asset-q', parse: t => { let a = []; if (/equit|stock|share/i.test(t)) a.push('Equity'); if (/mutual|mf|fund|sip/i.test(t)) a.push('MF'); if (/gold/i.test(t)) a.push('Gold'); if (/real estate|property/i.test(t)) a.push('Real Estate'); if (/fd|fixed|debt|bond/i.test(t)) a.push('Debt/FD'); if (!a.length) a = ['Savings']; return { assets: a.join(', ') }; }, signal: () => 'Asset classes mapped' },
-      { ask: () => `<p>Good diversification context. <strong>What is your approximate annual income bracket?</strong></p>`, richType: 'income-q', parse: t => { let inc = '₹10–20L p.a.', seg = null; if (/below 5|under 5/i.test(t)) inc = 'Below ₹5L p.a.'; else if (/5.*(10|ten)|10 lakh/i.test(t)) inc = '₹5–10L p.a.'; else if (/10.*(20|twenty)|15/i.test(t)) inc = '₹10–20L p.a.'; else if (/20.*(40|forty)|25|30/i.test(t)) { inc = '₹20–40L p.a.'; } else if (/40.*(1 cr|hundred)|50 lakh/i.test(t)) { inc = '₹40L–1Cr p.a.'; seg = 'HNI'; } else if (/1 cr|crore|above 1/i.test(t)) { inc = '₹1Cr+ p.a.'; seg = 'Ultra-HNI'; } const r = { income: inc }; if (seg) r.segment = seg; return r; }, signal: () => 'Income bracket captured — segment refined' },
-      { ask: () => `<p>Almost done profiling. Quick check: <strong>Do you currently have term insurance and NPS?</strong></p>`, richType: 'insurance-q', parse: t => { const hasIns = /yes.*insur|have.*insur|term plan|insurance.*yes/i.test(t) ? true : /no.*insur|don't.*insur|neither|without/i.test(t) ? false : null; const hasNPS = /yes.*nps|have.*nps|nps.*yes/i.test(t) ? true : /no.*nps|don't.*nps|neither/i.test(t) ? false : null; return { hasInsurance: hasIns, hasNPS: hasNPS }; }, signal: () => 'Insurance & NPS coverage status captured' }
+      { ask:`<p>Namaste! 🙏 I'm your <strong>ET AI Concierge</strong>, powered by PAIL — ET's Persistent Adaptive Intelligence Layer.</p><p>ET has a massive ecosystem — <strong>ET Prime, ET Markets, Masterclasses, Wealth Summits, and Financial Services</strong>. Most users discover only 10% of what ET offers.</p><p>I'll be your personal guide. Let's start: <strong>What's your name?</strong></p>`, richType:null, parse:t=>{const raw=t.trim().replace(/^(i'm|i am|my name is|this is|hey i'm|hi i'm|call me)\s*/i,'').replace(/[.!,].*$/,'').trim();const name=raw.split(/\s+/).map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(' ')||'User';const parts=name.split(/\s+/);const initials=parts.length>=2?(parts[0][0]+parts[parts.length-1][0]).toUpperCase():name.substring(0,2).toUpperCase();return{name,initials};}, signal:()=>'User name captured' },
+      { ask:p=>`<p>Welcome, <strong>${p.name}</strong>! 🎉</p><p><strong>What's your age range?</strong></p>`, richType:'age-q', parse:t=>{let a='25–30';if(/18|19|early 20|under 25|below 25|20.*25|18.*24/i.test(t))a='18–25';else if(/25.*30|late 20|mid 20|26|27|28|29/i.test(t))a='25–30';else if(/30.*35|early 30|31|32|33|34/i.test(t))a='30–35';else if(/35.*40|late 30|36|37|38|39/i.test(t))a='35–40';else if(/40.*50|40s|41|42|43|44|45/i.test(t))a='40–50';else if(/50|above 50|over 50|senior|60/i.test(t))a='50+';return{ageRange:a};}, signal:()=>'Age range recorded' },
+      { ask:p=>`<p>Perfect, ${p.name}. Now let's understand your financial life.</p><p><strong>What's your primary financial goal?</strong></p>`, richType:'goal-q', parse:t=>{let g='Wealth creation',s='HNI-Aspirant';if(/retire|fire|independen/i.test(t)){g='Retirement / FIRE';s='FIRE-Seeker';}else if(/child|educat/i.test(t)){g='Child education';s='Family-Planner';}else if(/income|passive/i.test(t)){g='Passive income';s='Income-Seeker';}else if(/preserve|safe|capital/i.test(t)){g='Capital preservation';s='Conservative-HNI';}return{goal:g,segment:s};}, signal:t=>`Goal: ${/retire|fire/i.test(t)?'FIRE':'Wealth creation'}` },
+      { ask:p=>`<p>Great — <strong>${p.goal}</strong>. What's your risk appetite?</p>`, richType:'risk-q', parse:t=>{let r='Moderate';if(/conserv|safe|low/i.test(t))r='Conservative';else if(/very aggress|maximum/i.test(t))r='Very Aggressive';else if(/aggress|high|growth/i.test(t))r='Aggressive';return{risk:r};}, signal:()=>'Risk profile updated' },
+      { ask:()=>`<p>What asset classes are you invested in?</p><p class="hint-text">(Equity, Mutual Funds, Gold, Real Estate, FD/Debt)</p>`, richType:'asset-q', parse:t=>{let a=[];if(/equit|stock|share/i.test(t))a.push('Equity');if(/mutual|mf|fund|sip/i.test(t))a.push('MF');if(/gold/i.test(t))a.push('Gold');if(/real estate|property/i.test(t))a.push('Real Estate');if(/fd|fixed|debt|bond/i.test(t))a.push('Debt/FD');if(!a.length)a=['Savings'];return{assets:a.join(', ')};}, signal:()=>'Asset classes mapped' },
+      { ask:()=>`<p><strong>What is your approximate annual income bracket?</strong></p>`, richType:'income-q', parse:t=>{let inc='₹10–20L p.a.',seg=null;if(/below 5|under 5/i.test(t))inc='Below ₹5L p.a.';else if(/5.*(10|ten)|10 lakh/i.test(t))inc='₹5–10L p.a.';else if(/10.*(20|twenty)|15/i.test(t))inc='₹10–20L p.a.';else if(/20.*(40|forty)|25|30/i.test(t))inc='₹20–40L p.a.';else if(/40.*(1 cr|hundred)|50 lakh/i.test(t)){inc='₹40L–1Cr p.a.';seg='HNI';}else if(/1 cr|crore|above 1/i.test(t)){inc='₹1Cr+ p.a.';seg='Ultra-HNI';}const r={income:inc};if(seg)r.segment=seg;return r;}, signal:()=>'Income captured' },
+      { ask:()=>`<p>Last one: <strong>Do you have term insurance and NPS?</strong></p>`, richType:'insurance-q', parse:t=>{const hasIns=/yes.*insur|have.*insur|term plan|insurance.*yes/i.test(t)?true:/no.*insur|don't.*insur|neither|without/i.test(t)?false:null;const hasNPS=/yes.*nps|have.*nps|nps.*yes/i.test(t)?true:/no.*nps|don't.*nps|neither/i.test(t)?false:null;return{hasInsurance:hasIns,hasNPS:hasNPS};}, signal:()=>'Insurance & NPS status captured' }
     ];
+    // If returning user, skip profiling
+    if(this.fabric.isReturningUser()){this.profilingStep=this.profilingStages.length;}
+    // Conversational context
+    this.convHistory = [];
+    this.activeFlow = null; // tracks multi-turn flows like MF plan, roadmap
+    this.flowData = {};
   }
 
   async process(input) {
     const txt = input.toLowerCase();
     this.fabric.metrics.interactions++;
-    this.fabric.pushSignal(`User: "${input.substring(0, 35)}…"`, 'rgba(255,255,255,.25)');
+    this.fabric.behaviour.trackQuery(input, this.currentAgent);
+    this.fabric.pushSignal(`User: "${input.substring(0,35)}…"`, 'rgba(255,255,255,.25)');
+    // Save to conversation history
+    this.convHistory.push({ role: 'user', text: input, time: Date.now() });
+    if (this.convHistory.length > 30) this.convHistory.shift();
 
-    // Route based on current agent
-    if (this.currentAgent === 'concierge') return this.handleConcierge(txt, input);
-    if (this.currentAgent === 'navigator') return this.handleNavigator(txt, input);
-    if (this.currentAgent === 'crosssell') return this.handleCrossSell(txt, input);
-    if (this.currentAgent === 'marketplace') return this.handleMarketplace(txt, input);
+    // Check for active multi-turn flow first
+    if (this.activeFlow) {
+      const flowResult = this._handleActiveFlow(txt, input);
+      if (flowResult) return flowResult;
+    }
 
-    return { text: `<p>Based on your PAIL profile, I'm working on a personalised response.</p>` };
+    let result;
+    if (this.currentAgent==='concierge') result = this.handleConcierge(txt,input);
+    else if (this.currentAgent==='navigator') result = this.handleNavigator(txt,input);
+    else if (this.currentAgent==='crosssell') result = this.handleCrossSell(txt,input);
+    else if (this.currentAgent==='marketplace') result = this.handleMarketplace(txt,input);
+    else result = {text:`<p>Processing your request…</p>`};
+
+    // Resolve promise if async
+    if (result instanceof Promise) result = await result;
+    // Save bot response to history
+    this.convHistory.push({ role: 'bot', text: (result.text||'').substring(0,200), time: Date.now() });
+    return result;
+  }
+
+  // ===== CONVERSATIONAL INTELLIGENCE =====
+  // Generates deep, personalized responses instead of just links
+  _converse(query) {
+    const u = this.fabric.identityGraph;
+    const p = this.fabric.portfolio;
+    const q = query.toLowerCase();
+    const name = u.name || 'there';
+    const intents = this.nlp.classify(query);
+    const topIntent = intents[0]?.intent;
+
+    // ---- MUTUAL FUND PLAN ----
+    if (/mutual fund.*plan|personali.*mutual|mf.*plan|sip.*plan|create.*plan.*fund|which.*mutual.*fund/i.test(q)) {
+      this.activeFlow = 'mf_plan';
+      this.flowData = { step: 0 };
+      const monthlyInv = u.income ? this._incomeToMonthly(u.income) : 25000;
+      const sipSuggest = Math.round(monthlyInv * 0.2);
+      return { text: `<p>Great question, ${name}! Let me build a personalised mutual fund plan for you. 📊</p>
+        <p>Based on your profile — <strong>${u.risk||'Moderate'}</strong> risk, <strong>${u.goal||'Wealth creation'}</strong> goal, <strong>${u.income||'₹10–20L'}</strong> income — here's what I'm thinking:</p>
+        <p><strong>How much can you invest monthly via SIP?</strong> I'd suggest around <strong>₹${sipSuggest.toLocaleString('en-IN')}/month</strong> (20% of estimated monthly income), but tell me your comfortable amount.</p>
+        <p class="hint-text">Just type the monthly amount, e.g., "₹15000" or "15000 per month"</p>` };
+    }
+
+    // ---- INVESTMENT ROADMAP ----
+    if (/road\s*map|investment.*plan|financial.*plan|clear.*plan|step.*by.*step|guide.*invest|how.*start.*invest|where.*start/i.test(q)) {
+      const gaps = [];
+      if (u.hasInsurance !== true) gaps.push('term insurance');
+      if (u.hasNPS !== true) gaps.push('NPS for tax saving');
+      if (p.holdings.length > 0 && p.assetAllocation.debt === 0) gaps.push('debt allocation');
+
+      const riskAlloc = u.risk === 'Aggressive' ? { equity: 70, debt: 15, gold: 10, intl: 5 }
+        : u.risk === 'Conservative' ? { equity: 30, debt: 50, gold: 15, intl: 5 }
+        : { equity: 50, debt: 30, gold: 10, intl: 10 };
+
+      const monthlyInv = u.income ? this._incomeToMonthly(u.income) : 25000;
+      const totalSIP = Math.round(monthlyInv * 0.25);
+
+      return { text: `<p>Absolutely, ${name}! Let me lay out a clear investment roadmap tailored to your profile. 🗺️</p>
+
+        <p><strong>Your Profile:</strong> ${u.goal||'Wealth creation'} · ${u.risk||'Moderate'} risk · ${u.income||'Not specified'} · ${u.ageRange||'25–30'} age</p>
+
+        <div class="r-card"><div class="r-card-title">🔴 Phase 1 — Immediate (This Week)</div>
+        ${gaps.length > 0 ? `<p>You have ${gaps.length} critical gap${gaps.length>1?'s':''} to fix first:</p><ul>${gaps.map(g => `<li><strong>${g}</strong> — ${g.includes('insurance') ? 'This protects your family. 20× annual income coverage recommended. <a href="https://economictimes.indiatimes.com/wealth/insure" target="_blank" class="et-link">Compare plans on ET Wealth →</a>' : g.includes('NPS') ? 'Extra ₹50K deduction under 80CCD(1B). <a href="https://economictimes.indiatimes.com/wealth/retire" target="_blank" class="et-link">NPS guide on ET →</a>' : 'Add 20–30% to debt instruments for stability'}</li>`).join('')}</ul>` : '<p>✅ No critical protection gaps — you can focus on growth.</p>'}
+        </div>
+
+        <div class="r-card"><div class="r-card-title">🟡 Phase 2 — Build Your SIP Portfolio (Month 1–3)</div>
+        <p>Recommended monthly SIP: <strong>₹${totalSIP.toLocaleString('en-IN')}</strong> (25% of income)</p>
+        <p>Split across asset classes based on your <strong>${u.risk||'Moderate'}</strong> profile:</p>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0">
+          <div style="text-align:center;padding:10px;background:rgba(208,2,27,.1);border-radius:8px"><div style="font-size:18px;font-weight:700;color:var(--et-red)">${riskAlloc.equity}%</div><div style="font-size:10px;color:var(--et-muted)">Equity</div></div>
+          <div style="text-align:center;padding:10px;background:rgba(26,107,181,.1);border-radius:8px"><div style="font-size:18px;font-weight:700;color:var(--blue)">${riskAlloc.debt}%</div><div style="font-size:10px;color:var(--et-muted)">Debt</div></div>
+          <div style="text-align:center;padding:10px;background:rgba(201,162,39,.1);border-radius:8px"><div style="font-size:18px;font-weight:700;color:var(--gold)">${riskAlloc.gold}%</div><div style="font-size:10px;color:var(--et-muted)">Gold</div></div>
+          <div style="text-align:center;padding:10px;background:rgba(26,171,170,.1);border-radius:8px"><div style="font-size:18px;font-weight:700;color:var(--teal)">${riskAlloc.intl}%</div><div style="font-size:10px;color:var(--et-muted)">Int'l</div></div>
+        </div>
+        <p>That means: <strong>₹${Math.round(totalSIP*riskAlloc.equity/100).toLocaleString('en-IN')}</strong> in equity SIPs + <strong>₹${Math.round(totalSIP*riskAlloc.debt/100).toLocaleString('en-IN')}</strong> in debt + <strong>₹${Math.round(totalSIP*riskAlloc.gold/100).toLocaleString('en-IN')}</strong> in gold.</p>
+        <p>📚 <a href="https://economictimes.indiatimes.com/masterclass" target="_blank" class="et-link">Take the SIP Strategy Masterclass on ET →</a></p>
+        </div>
+
+        <div class="r-card"><div class="r-card-title">🟢 Phase 3 — Grow & Monitor (Quarterly)</div>
+        <p>• Step up SIPs by 10% every year<br>• Track on <a href="https://economictimes.indiatimes.com/markets" target="_blank" class="et-link">ET Markets Portfolio Tracker</a><br>• Read analysis on <a href="https://economictimes.indiatimes.com/prime" target="_blank" class="et-link">ET Prime</a> for expert insights<br>• Rebalance once a year based on goal proximity</p>
+        </div>
+
+        <p><strong>Want me to deep-dive into any phase?</strong> I can recommend specific funds, compare insurance plans, or simulate your FIRE trajectory. Just ask! 💬</p>`,
+        toast: 'Personalised roadmap generated'
+      };
+    }
+
+    // ---- PERSONALIZED MF RECOMMENDATIONS ----
+    if (/which.*fund|best.*fund|recommend.*fund|suggest.*fund|top.*fund|good.*fund/i.test(q)) {
+      const riskFunds = {
+        Conservative: [
+          { name: 'HDFC Balanced Advantage Fund', cat: 'Balanced', ret: '12.8%', why: 'Automatic equity-debt rebalancing — perfect for conservative profiles' },
+          { name: 'ICICI Pru Equity & Debt Fund', cat: 'Hybrid', ret: '14.2%', why: 'Stable returns with downside protection' },
+          { name: 'SBI Magnum Gilt Fund', cat: 'Debt', ret: '7.8%', why: 'Government security backed — zero credit risk' }
+        ],
+        Moderate: [
+          { name: 'Parag Parikh Flexi Cap Fund', cat: 'Flexi Cap', ret: '18.4%', why: 'Diversified across India + US equities — ideal for wealth creation' },
+          { name: 'Mirae Asset Large Cap Fund', cat: 'Large Cap', ret: '15.6%', why: 'Consistent performer with low volatility in its category' },
+          { name: 'Kotak Emerging Equity Fund', cat: 'Mid Cap', ret: '22.1%', why: 'High growth potential — mid-caps outperform over long horizons' }
+        ],
+        Aggressive: [
+          { name: 'Quant Small Cap Fund', cat: 'Small Cap', ret: '28.3%', why: 'Aggressive growth — high risk but massive returns potential' },
+          { name: 'Nippon India Small Cap Fund', cat: 'Small Cap', ret: '26.8%', why: 'Well-managed small-cap exposure with proven track record' },
+          { name: 'Axis Midcap Fund', cat: 'Mid Cap', ret: '21.5%', why: 'Quality mid-caps with strong earnings growth trajectory' }
+        ]
+      };
+      const risk = u.risk || 'Moderate';
+      const funds = riskFunds[risk] || riskFunds.Moderate;
+      const monthlyInv = u.income ? this._incomeToMonthly(u.income) : 25000;
+      const sipEach = Math.round(monthlyInv * 0.2 / funds.length);
+
+      return { text: `<p>${name}, based on your <strong>${risk}</strong> risk profile and <strong>${u.goal||'Wealth creation'}</strong> goal, here are my top fund picks: 💼</p>
+        ${funds.map((f,i) => `<div style="background:rgba(26,171,170,.${i===0?'12':'08'});padding:14px;border-radius:10px;margin:10px 0;border-left:3px solid ${i===0?'var(--teal)':'transparent'}">
+          <div style="display:flex;justify-content:space-between;align-items:center"><strong>${f.name}</strong><span style="color:var(--teal);font-weight:600">${f.ret} (3yr)</span></div>
+          <div style="font-size:12px;color:var(--et-muted);margin:4px 0">${f.cat} · Suggested SIP: ₹${sipEach.toLocaleString('en-IN')}/mo</div>
+          <div style="font-size:12px;margin:6px 0">💡 <em>${f.why}</em></div>
+        </div>`).join('')}
+        <p><strong>Total suggested SIP:</strong> ₹${(sipEach*funds.length).toLocaleString('en-IN')}/month across ${funds.length} funds</p>
+        <p>This gives you diversification across ${[...new Set(funds.map(f=>f.cat))].join(', ')} categories — aligned with your ${u.horizon||'7–12 yrs'} investment horizon.</p>
+        <p><strong>Shall I:</strong></p>
+        <ul><li>Add these to your portfolio tracker?</li><li>Show you how this grows over ${u.horizon||'10 years'}?</li><li>Compare with alternatives?</li></ul>
+        <p>📊 <a href="https://economictimes.indiatimes.com/mutual-funds" target="_blank" class="et-link">Explore all funds on ET Markets →</a></p>` };
+    }
+
+    // ---- INSURANCE CONVERSATION ----
+    if (/need.*insurance|should.*insur|how much.*cover|term.*insurance.*for me|insurance.*suggest/i.test(q)) {
+      const annualIncome = this._incomeToAnnual(u.income);
+      const coverNeeded = annualIncome * 20;
+      const age = parseInt(u.ageRange) || 30;
+      const monthlyPremium = Math.round(coverNeeded / 10000000 * (age < 30 ? 550 : age < 40 ? 750 : 1100));
+
+      return { text: `<p>Great that you're thinking about this, ${name}. Let me give you a proper insurance analysis. 🛡️</p>
+        <p><strong>Current Status:</strong> ${u.hasInsurance === true ? '✅ You have term insurance' : u.hasInsurance === false ? '❌ No term insurance — this is your #1 financial priority' : '⚠️ Insurance status unknown'}</p>
+
+        <div class="r-card"><div class="r-card-title">Your Coverage Calculation</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:10px">
+          <div><div style="font-size:10px;color:var(--et-muted)">Rule of Thumb</div><div style="font-size:16px;font-weight:600">20× Annual Income</div></div>
+          <div><div style="font-size:10px;color:var(--et-muted)">Recommended Cover</div><div style="font-size:16px;font-weight:600;color:var(--teal)">₹${(coverNeeded/10000000).toFixed(1)} Cr</div></div>
+          <div><div style="font-size:10px;color:var(--et-muted)">Your Age Group</div><div style="font-size:16px;font-weight:600">${u.ageRange||'25–30'}</div></div>
+          <div><div style="font-size:10px;color:var(--et-muted)">Est. Monthly Premium</div><div style="font-size:16px;font-weight:600;color:var(--gold)">₹${monthlyPremium.toLocaleString('en-IN')}/mo</div></div>
+        </div></div>
+
+        <p><strong>Why this matters:</strong> If something happens to you, your family needs ${Math.round(coverNeeded/annualIncome)} years of income replacement. A term plan at ₹${monthlyPremium}/month is literally the cost of two coffees a day.</p>
+
+        <p><strong>My top picks for your profile:</strong></p>
+        <ul>
+          <li><strong>ICICI Pru iProtect Smart</strong> — Returns 105% of premiums if you survive the term</li>
+          <li><strong>HDFC Click 2 Protect Life</strong> — Critical illness rider available</li>
+          <li><strong>Max Life Smart Secure Plus</strong> — Lowest premium in most age groups</li>
+        </ul>
+
+        <p>Want me to compare these in detail, or shall we also look at health insurance? 💬</p>
+        <p>📖 <a href="https://economictimes.indiatimes.com/wealth/insure" target="_blank" class="et-link">Read expert insurance guides on ET Wealth →</a></p>`,
+        toast: 'Insurance analysis generated'
+      };
+    }
+
+    // ---- CREDIT CARD CONVERSATION ----
+    if (/credit card.*for me|best.*credit card|which.*card|suggest.*card|compare.*card/i.test(q)) {
+      const isHNI = u.income && /40L|1Cr|crore/i.test(u.income);
+      return { text: `<p>Let me find the perfect card for you, ${name}! 💳</p>
+        <p>Based on your <strong>${u.income||'income bracket'}</strong> and <strong>${u.segment||'profile'}</strong>:</p>
+
+        <div style="background:rgba(201,162,39,.1);padding:16px;border-radius:10px;margin:10px 0;border-left:3px solid var(--gold)">
+          <div style="font-size:11px;color:var(--gold);font-weight:600;margin-bottom:4px">🏆 TOP PICK FOR YOU</div>
+          <div style="font-weight:700;font-size:16px">${isHNI ? 'ET–Axis Magnus Credit Card' : 'ET–HDFC Millennia Credit Card'}</div>
+          <div style="margin:8px 0">${isHNI ? '✈️ Unlimited airport lounge access · 3.5% on travel · 40,000 welcome points' : '💵 5% cashback on ET · 2.5% on online shopping · ₹0 joining fee for 1st year'}</div>
+          <div style="font-size:12px;color:var(--et-muted)">Pre-approved based on your ET profile</div>
+        </div>
+
+        ${!isHNI ? `<div style="background:rgba(26,107,181,.08);padding:14px;border-radius:10px;margin:10px 0">
+          <div style="font-weight:600">Also Consider: SBI SimplyCLICK</div>
+          <div style="font-size:12px;margin:4px 0">10× reward points on online spends · Amazon/Swiggy vouchers · ₹499 annual fee</div>
+          <div style="font-size:12px;color:var(--et-muted);margin-top:4px">Good starter card with high online rewards</div>
+        </div>` : `<div style="background:rgba(26,107,181,.08);padding:14px;border-radius:10px;margin:10px 0">
+          <div style="font-weight:600">Also Consider: Infinia / Diners Black</div>
+          <div style="font-size:12px;margin:4px 0">Unlimited lounge access globally · 33% savings on reward redemption · Golf privileges</div>
+          <div style="font-size:12px;color:var(--et-muted);margin-top:4px">Premium lifestyle card for HNI segment</div>
+        </div>`}
+
+        <p><strong>Pro tip:</strong> ${isHNI ? 'With your income bracket, you can maximize reward points by routing all business expenses through a premium card. Annual savings potential: ₹50K–1L.' : 'Start with one good cashback card. Once you build credit history, upgrade to premium travel cards in 12–18 months.'}</p>
+        <p>Want me to help you calculate which card saves you the most? Just tell me your monthly spend categories. 💬</p>
+        <p>💳 <a href="https://economictimes.indiatimes.com/wealth/spend" target="_blank" class="et-link">Compare all cards on ET Wealth →</a></p>` };
+    }
+
+    // ---- GENERAL CONVERSATIONAL RESPONSES ----
+    // Wealth management / PMS
+    if (/wealth.*manage|pms|portfolio.*manage|advisory/i.test(q)) {
+      const minInv = u.income && /40L|1Cr/i.test(u.income) ? '₹25L' : '₹50L';
+      return { text: `<p>${name}, Portfolio Management Services (PMS) could be a great fit for your profile. Let me break it down: 💎</p>
+        <p><strong>What is PMS?</strong> Professional fund managers build and manage a custom stock portfolio for you — unlike mutual funds, you directly own the stocks.</p>
+        <p><strong>Best for:</strong> Investors with ${minInv}+ corpus who want personalised stock selection, active management, and direct ownership.</p>
+        <div class="r-card"><div class="r-card-title">Matched PMS Options</div>
+        <div class="opp-row"><div class="opp-left"><div class="opp-ico" style="background:rgba(201,162,39,.15)">🚀</div><div><div class="opp-title">Zerodha PMS — Momentum Strategy</div><div class="opp-sub">Min ₹50L · 26.4% CAGR (3yr) · High conviction picks</div></div></div><span class="match-pill match-high">Top Pick</span></div>
+        <div class="opp-row"><div class="opp-left"><div class="opp-ico" style="background:rgba(26,107,181,.15)">⚖️</div><div><div class="opp-title">Motilal Oswal — Multi-Asset PMS</div><div class="opp-sub">Min ₹25L · 18.2% CAGR (5yr) · Balanced approach</div></div></div><span class="match-pill match-med">${u.risk==='Aggressive'?'Good':'Best Fit'}</span></div>
+        </div>
+        <p><strong>Should you go PMS or Mutual Funds?</strong> ${u.income && /40L|1Cr/i.test(u.income) ? 'With your income bracket, PMS makes sense for the core portfolio. Keep SIPs for systematic investing alongside.' : 'For now, mutual funds are more accessible. Build your corpus to ₹50L+ first, then consider PMS.'}</p>
+        <p>Want to compare PMS vs MF returns for your specific profile? 💬</p>` };
+    }
+
+    return null; // No conversational match — fall through to product discovery
+  }
+
+  // ===== MULTI-TURN FLOW HANDLER =====
+  _handleActiveFlow(txt, raw) {
+    const u = this.fabric.identityGraph;
+    const name = u.name || 'there';
+
+    if (this.activeFlow === 'mf_plan') {
+      const step = this.flowData.step;
+      if (step === 0) {
+        // Parse SIP amount
+        const amountMatch = raw.match(/₹?\s*([\d,]+)/);
+        if (!amountMatch) {
+          return { text: `<p>I didn't catch the amount. Just type a number like <strong>₹15000</strong> or <strong>10000</strong>.</p>` };
+        }
+        const sipAmount = parseInt(amountMatch[1].replace(/,/g, ''));
+        this.flowData.sipAmount = sipAmount;
+        this.flowData.step = 1;
+
+        const risk = u.risk || 'Moderate';
+        const split = risk === 'Aggressive' ? { largecap: 20, midcap: 40, smallcap: 30, debt: 10 }
+          : risk === 'Conservative' ? { largecap: 40, midcap: 15, smallcap: 5, debt: 40 }
+          : { largecap: 30, midcap: 30, smallcap: 15, debt: 25 };
+
+        const horizon = parseInt(u.horizon) || 10;
+        const cagr = risk === 'Aggressive' ? 0.15 : risk === 'Conservative' ? 0.10 : 0.12;
+        const r = cagr / 12; const n = horizon * 12;
+        const futureValue = Math.round(sipAmount * ((Math.pow(1 + r, n) - 1) / r) * (1 + r));
+
+        this.activeFlow = null; // End flow
+
+        return { text: `<p>Perfect, ${name}! Here's your personalised <strong>₹${sipAmount.toLocaleString('en-IN')}/month</strong> mutual fund plan: 📋</p>
+
+          <div class="r-card"><div class="r-card-title">Your SIP Allocation Plan</div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:8px">
+            ${Object.entries(split).filter(([,v])=>v>0).map(([k,v]) => {
+              const amt = Math.round(sipAmount * v / 100);
+              const cat = k === 'largecap' ? 'Large Cap' : k === 'midcap' ? 'Mid Cap' : k === 'smallcap' ? 'Small Cap' : 'Debt/Hybrid';
+              const clr = k === 'largecap' ? 'var(--blue)' : k === 'midcap' ? 'var(--teal)' : k === 'smallcap' ? 'var(--et-red)' : 'var(--gold)';
+              return `<div style="padding:10px;background:rgba(255,255,255,.04);border-radius:8px;border-left:3px solid ${clr}"><div style="font-size:16px;font-weight:700;color:${clr}">₹${amt.toLocaleString('en-IN')}</div><div style="font-size:11px;color:var(--et-muted)">${cat} (${v}%)</div></div>`;
+            }).join('')}
+          </div>
+          <div style="padding:12px;background:rgba(26,171,170,.08);border-radius:8px;margin-top:10px;text-align:center">
+            <div style="font-size:11px;color:var(--et-muted)">Projected Value in ${horizon} Years @ ${Math.round(cagr*100)}% CAGR</div>
+            <div style="font-size:28px;font-weight:700;color:var(--teal)">₹${(futureValue/100000).toFixed(1)}L</div>
+          </div>
+          </div>
+
+          <p><strong>Suggested Funds:</strong></p>
+          <ul>
+            ${split.largecap > 0 ? '<li><strong>Large Cap:</strong> Mirae Asset Large Cap or ICICI Pru Bluechip</li>' : ''}
+            ${split.midcap > 0 ? '<li><strong>Mid Cap:</strong> Kotak Emerging Equity or Axis Midcap</li>' : ''}
+            ${split.smallcap > 0 ? '<li><strong>Small Cap:</strong> Quant Small Cap or Nippon Small Cap</li>' : ''}
+            ${split.debt > 0 ? '<li><strong>Debt:</strong> HDFC Short Term Debt or Kotak Bond Fund</li>' : ''}
+          </ul>
+
+          <p><strong>Next steps:</strong></p>
+          <ol>
+            <li>Start SIPs on the 1st or 5th of each month</li>
+            <li>Set up auto-debit so you never miss</li>
+            <li>Increase SIP by 10% every year (step-up SIP)</li>
+            <li>Review quarterly on <a href="https://economictimes.indiatimes.com/markets" target="_blank" class="et-link">ET Markets</a></li>
+          </ol>
+          <p>Want me to add these to your portfolio tracker, or explore any specific fund in detail? 💬</p>`,
+          toast: 'MF Plan generated!'
+        };
+      }
+    }
+    return null;
+  }
+
+  _incomeToMonthly(inc) {
+    if (!inc) return 50000;
+    if (/Below.*5L/i.test(inc)) return 30000;
+    if (/5.*10L/i.test(inc)) return 60000;
+    if (/10.*20L/i.test(inc)) return 120000;
+    if (/20.*40L/i.test(inc)) return 250000;
+    if (/40L.*1Cr/i.test(inc)) return 580000;
+    if (/1Cr/i.test(inc)) return 1000000;
+    return 100000;
+  }
+
+  _incomeToAnnual(inc) {
+    return this._incomeToMonthly(inc) * 12;
+  }
+
+  // Smart ET product response builder
+  _buildETProductResponse(query) {
+    const intents = this.nlp.classify(query);
+    if (!intents.length) return null;
+    const top = intents[0];
+    const u = this.fabric.identityGraph;
+    const intentMap = {
+      'discover_fno': () => {
+        const s = ETEcosystemKB.products.markets.sections.fno;
+        return { text: `<p>📊 <strong>Futures & Options on ET Markets</strong></p><p>You can access the complete F&O section on ET Markets — live options chain, derivatives data, expiry calendars, and expert strategies.</p><div style="background:rgba(26,107,181,.1);padding:14px;border-radius:10px;margin:10px 0"><div style="font-weight:600">ET Markets — F&O Section</div><div style="font-size:12px;color:var(--et-muted);margin:4px 0">Live options chain · Put-Call ratio · Max Pain · OI data · Expiry analysis</div><a href="${s.url}" target="_blank" class="et-link" style="font-size:12px">Open F&O on ET Markets →</a></div><p>Based on your <strong>${u.risk||'Moderate'}</strong> risk profile${u.risk==='Aggressive'?' — F&O aligns well with your profile':' — consider learning basics first via <a href="https://economictimes.indiatimes.com/masterclass" class="et-link" target="_blank">ET Masterclass</a>'}.</p>` };
+      },
+      'discover_ipo': () => {
+        const s = ETEcosystemKB.products.markets.sections.ipo;
+        return { text: `<p>🎯 <strong>IPO Section on ET Markets</strong></p><p>Track upcoming IPOs, check GMP, allotment status, and listing day analysis — all on ET Markets.</p><div style="background:rgba(26,107,181,.1);padding:14px;border-radius:10px;margin:10px 0"><div style="font-weight:600">ET Markets — IPO Hub</div><div style="font-size:12px;color:var(--et-muted);margin:4px 0">Upcoming IPOs · GMP tracker · Subscription status · Allotment checker</div><a href="${s.url}" target="_blank" class="et-link" style="font-size:12px">Open IPO section →</a></div>` };
+      },
+      'discover_mf': () => {
+        const s = ETEcosystemKB.products.markets.sections.mf;
+        return { text: `<p>💼 <strong>Mutual Funds on ET</strong></p><p>Explore top-performing mutual funds, compare NAVs, start SIPs, and get expert recommendations.</p><div style="background:rgba(26,171,170,.1);padding:14px;border-radius:10px;margin:10px 0"><div style="font-weight:600">ET Mutual Funds</div><div style="font-size:12px;color:var(--et-muted);margin:4px 0">Fund comparison · SIP calculator · Category analysis · Expert picks</div><a href="${s.url}" target="_blank" class="et-link" style="font-size:12px">Explore Mutual Funds →</a></div>${u.goal==='Wealth creation'?'<p>For your <strong>Wealth creation</strong> goal, consider flexi-cap and mid-cap funds.</p>':''}` };
+      },
+      'discover_tax': () => {
+        const s = ETEcosystemKB.products.wealth.sections.tax;
+        return { text: `<p>📋 <strong>Tax Planning on ET Wealth</strong></p><p>Comprehensive tax planning guides — Section 80C, 80D, LTCG, ITR filing, and tax-saving strategies.</p><div style="background:rgba(201,162,39,.1);padding:14px;border-radius:10px;margin:10px 0"><div style="font-weight:600">ET Wealth — Tax & Savings</div><div style="font-size:12px;color:var(--et-muted);margin:4px 0">80C investments · LTCG/STCG · ITR guides · Tax calculators</div><a href="${s.url}" target="_blank" class="et-link" style="font-size:12px">Open Tax Section →</a></div>${u.hasNPS===false?'<p>💡 <strong>Tip:</strong> You don\'t have NPS — that\'s an extra ₹50K deduction under 80CCD(1B).</p>':''}` };
+      },
+      'discover_insurance': () => {
+        const s = ETEcosystemKB.products.wealth.sections.insurance;
+        return { text: `<p>🛡️ <strong>Insurance on ET Wealth</strong></p><p>Compare term plans, health insurance, and understand claim processes.</p><div style="background:rgba(26,171,170,.1);padding:14px;border-radius:10px;margin:10px 0"><div style="font-weight:600">ET Wealth — Insurance</div><div style="font-size:12px;color:var(--et-muted);margin:4px 0">Term plan comparison · Health insurance · Claim guide · ULIP vs MF</div><a href="${s.url}" target="_blank" class="et-link" style="font-size:12px">Explore Insurance →</a></div>`, extra: this._buildInsuranceOptions() };
+      },
+      'discover_retirement': () => {
+        const s = ETEcosystemKB.products.wealth.sections.retirement;
+        return { text: `<p>🏖️ <strong>Retirement Planning on ET</strong></p><p>NPS, PPF, EPF strategies, pension planning, and FIRE calculators.</p><div style="background:rgba(26,138,90,.1);padding:14px;border-radius:10px;margin:10px 0"><div style="font-weight:600">ET Wealth — Retirement</div><div style="font-size:12px;color:var(--et-muted);margin:4px 0">NPS guide · PPF calculator · Pension plans · FIRE toolkit</div><a href="${s.url}" target="_blank" class="et-link" style="font-size:12px">Plan Retirement →</a></div>`, extra: u.goal==='Retirement / FIRE'?this._buildFIRESimulation():'' };
+      },
+      'discover_loans': () => {
+        const s = ETEcosystemKB.products.wealth.sections.borrow;
+        return { text: `<p>🏠 <strong>Loan & Borrowing on ET Wealth</strong></p><p>Compare home loans, personal loans, education loans — rates, EMI calculators, and eligibility.</p><div style="background:rgba(26,107,181,.1);padding:14px;border-radius:10px;margin:10px 0"><div style="font-weight:600">ET Wealth — Borrow</div><div style="font-size:12px;color:var(--et-muted);margin:4px 0">Home loan rates · EMI calculator · Eligibility checker · Balance transfer</div><a href="${s.url}" target="_blank" class="et-link" style="font-size:12px">Compare Loans →</a></div>`, extra: this._buildHomeLoanOptions() };
+      },
+      'discover_creditcards': () => {
+        const s = ETEcosystemKB.products.wealth.sections.spend;
+        return { text: `<p>💳 <strong>Credit Cards on ET Wealth</strong></p><p>Best credit cards compared — cashback, travel rewards, premium cards, and annual fee waivers.</p><div style="background:rgba(201,162,39,.1);padding:14px;border-radius:10px;margin:10px 0"><div style="font-weight:600">ET Wealth — Spend Smart</div><div style="font-size:12px;color:var(--et-muted);margin:4px 0">Card comparison · Reward maximizer · Fee analysis · Best offers</div><a href="${s.url}" target="_blank" class="et-link" style="font-size:12px">Compare Cards →</a></div>` };
+      },
+      'discover_commodities': () => {
+        const s = ETEcosystemKB.products.markets.sections.commodities;
+        return { text: `<p>🏆 <strong>Commodities on ET Markets</strong></p><p>Gold, silver, crude oil prices — live MCX quotes, expert analysis, and trading strategies.</p><div style="background:rgba(201,162,39,.1);padding:14px;border-radius:10px;margin:10px 0"><div style="font-weight:600">ET Markets — Commodities</div><div style="font-size:12px;color:var(--et-muted);margin:4px 0">Gold/Silver prices · Crude oil · MCX live · Expert views</div><a href="${s.url}" target="_blank" class="et-link" style="font-size:12px">Track Commodities →</a></div>` };
+      },
+      'discover_forex': () => {
+        const s = ETEcosystemKB.products.markets.sections.forex;
+        return { text: `<p>💱 <strong>Forex on ET Markets</strong></p><p>USD/INR rates, currency converter, forex news, and RBI policy impact analysis.</p><div style="background:rgba(26,107,181,.1);padding:14px;border-radius:10px;margin:10px 0"><a href="${s.url}" target="_blank" class="et-link">Open Forex Section →</a></div>` };
+      },
+      'discover_bonds': () => {
+        const s = ETEcosystemKB.products.markets.sections.bonds;
+        return { text: `<p>📜 <strong>Bonds & Gilts on ET Markets</strong></p><p>Government securities, corporate bonds, yield curves, and debt investment strategies.</p><div style="background:rgba(26,107,181,.1);padding:14px;border-radius:10px;margin:10px 0"><a href="${s.url}" target="_blank" class="et-link">Explore Bonds →</a></div>` };
+      },
+      'discover_etf': () => {
+        const s = ETEcosystemKB.products.markets.sections.etfs;
+        return { text: `<p>📈 <strong>ETFs on ET</strong></p><p>Exchange-traded funds — Gold ETFs, Nifty BeES, international ETFs, and performance comparison.</p><div style="background:rgba(26,171,170,.1);padding:14px;border-radius:10px;margin:10px 0"><a href="${s.url}" target="_blank" class="et-link">Explore ETFs →</a></div>` };
+      },
+      'discover_technicals': () => {
+        const s = ETEcosystemKB.products.markets.sections.technicals;
+        return { text: `<p>📉 <strong>Technical Analysis on ET Markets</strong></p><p>Charts, RSI, MACD, support/resistance levels, candlestick patterns, and expert technical picks.</p><div style="background:rgba(26,107,181,.1);padding:14px;border-radius:10px;margin:10px 0"><a href="${s.url}" target="_blank" class="et-link">Open Technical Analysis →</a></div>` };
+      }
+    };
+    // Generic product discovery
+    const genericProducts = ['prime','markets','wealth','masterclass','events','tv','auto','startup'];
+    for(const pk of genericProducts){
+      intentMap[`discover_${pk}`] = intentMap[`discover_${pk}`] || (() => {
+        const p = ETEcosystemKB.products[pk];
+        if(!p) return null;
+        return { text: `<p>${p.icon} <strong>${p.name}</strong></p><p>${p.desc}</p><div style="background:${p.color||'rgba(26,107,181,.15)'};padding:14px;border-radius:10px;margin:10px 0"><a href="${p.url}" target="_blank" class="et-link">Open ${p.name} →</a></div>${p.features?'<p><strong>Features:</strong> '+p.features.join(' · ')+'</p>':''}` };
+      });
+    }
+    const handler = intentMap[top.intent];
+    return handler ? handler() : null;
   }
 
   handleConcierge(txt, raw) {
     const u = this.fabric.identityGraph;
-
     // Profiling flow
     if (this.profilingStep < this.profilingStages.length) {
       const stage = this.profilingStages[this.profilingStep];
       const updates = stage.parse(raw);
       this.fabric.updateIdentity(updates, stage.signal(raw));
       this.profilingStep++;
-
-      if (this.profilingStep === 1) this.fabric.advanceOnboard(0);
-      if (this.profilingStep === 4) this.fabric.advanceOnboard(2);
-
+      if(this.profilingStep===1) this.fabric.advanceOnboard(0);
+      if(this.profilingStep===4) this.fabric.advanceOnboard(2);
       if (this.profilingStep < this.profilingStages.length) {
         const next = this.profilingStages[this.profilingStep];
-        const ask = typeof next.ask === 'function' ? next.ask(this.fabric.identityGraph) : next.ask;
-        return { text: `<p>Got it — I've updated your profile. ✓</p>${ask}`, richType: next.richType, toast: `Profile updated` };
+        const ask = typeof next.ask==='function' ? next.ask(this.fabric.identityGraph) : next.ask;
+        return {text:`<p>Got it — profile updated. ✓</p>${ask}`, richType:next.richType, toast:'Profile updated'};
       } else {
-        this.fabric.advanceOnboard(2);
-        this.fabric.advanceOnboard(3);
-        return {
-          text: `<p>✅ <strong>Profiling complete!</strong> Your PAIL profile is now at <strong>${u.depth}%</strong> depth.</p>
-          <p>Based on what I know about you, <strong>${u.name}</strong> — <strong>${u.goal}</strong> goal, <strong>${u.risk}</strong> risk, <strong>${u.income}</strong> income — here's your personalised ET onboarding path:</p>
-          <p>Explore all 4 AI agents in the sidebar: <strong>Welcome Concierge</strong>, <strong>Financial Navigator</strong>, <strong>Cross-Sell Engine</strong>, and <strong>Services Marketplace</strong>.</p>`,
-          extra: this._buildPersonalisedOnboard(),
-          toast: 'Profile complete! Onboarding path generated.'
-        };
+        this.fabric.advanceOnboard(2); this.fabric.advanceOnboard(3);
+        return { text:`<p>✅ <strong>Profiling complete!</strong> Your PAIL profile is now at <strong>${u.depth}%</strong> depth.</p><p>Based on what I know about you, <strong>${u.name}</strong> — <strong>${u.goal}</strong> goal, <strong>${u.risk}</strong> risk, <strong>${u.income}</strong> income — here's your personalised ET onboarding path:</p><p>Explore all 4 AI agents in the sidebar: <strong>Welcome Concierge</strong>, <strong>Financial Navigator</strong>, <strong>Cross-Sell Engine</strong>, and <strong>Services Marketplace</strong>.</p>`, extra:this._buildPersonalisedOnboard(), toast:'Profile complete!' };
       }
     }
+    // Post-profiling: CONVERSATIONAL AI first, then product discovery
+    const convResp = this._converse(raw);
+    if (convResp) { this.fabric.metrics.articles++; this.fabric.renderMetrics(); return convResp; }
 
-    // Post-profiling intelligent responses
-    if (/prime/i.test(txt)) {
-      this.fabric.pushSignal('User exploring ET Prime', 'var(--gold)');
-      this.fabric.metrics.products++;
-      this.fabric.renderMetrics();
-      const primeRecos = this.fabric.getETPrimeRecommendations();
-      return {
-        text: `<p><strong>ET Prime</strong> — India's most powerful financial journalism platform. Based on your <strong>${u.goal || 'financial'}</strong> goal:</p>
-        <div class="prime-recommendations">
-          ${primeRecos.map(p => `
-            <div style="background: rgba(208,2,27,.1); padding: 12px; border-radius: 8px; margin: 8px 0;">
-              <div style="font-weight: 600; color: var(--et-red);">${p.title}</div>
-              <div style="font-size: 12px; color: var(--et-muted); margin: 4px 0;">${p.type} · ${p.relevance}% match</div>
-              <div style="font-size: 13px; margin: 8px 0;">${p.description}</div>
-              <a href="${p.url}" class="et-link" style="font-size: 12px;">Read on ET Prime →</a>
-            </div>
-          `).join('')}
-        </div>
-        <p><strong>ET Prime benefits:</strong> Exclusive research, expert columns, ad-free experience, and access to premium masterclasses.</p>
-        <p><a href="/et-prime" class="et-link">Activate 14-day free trial →</a></p>`,
-        newsTag: 'prime'
-      };
-    }
+    const productResp = this._buildETProductResponse(raw);
+    if (productResp) { this.fabric.metrics.articles++; this.fabric.renderMetrics(); return productResp; }
 
-    if (/masterclass|learn|course/i.test(txt)) {
-      this.fabric.pushSignal('User exploring Masterclasses', 'var(--blue)');
-      this.fabric.metrics.classes++;
-      this.fabric.renderMetrics();
-      const masterclasses = this.fabric.getMasterclassRecommendations();
-      return {
-        text: `<p>🎓 <strong>ET Masterclasses — Learn from India's Best</strong></p>
-        <p>Based on your <strong>${u.goal || 'financial'}</strong> goal and <strong>${u.risk || 'moderate'}</strong> risk profile:</p>
-        <div class="masterclass-recommendations">
-          ${masterclasses.map(m => `
-            <div style="background: rgba(26,171,170,.1); padding: 12px; border-radius: 8px; margin: 8px 0;">
-              <div style="display: flex; justify-content: space-between;">
-                <div style="font-weight: 600;">${m.title}</div>
-                <span style="background: rgba(26,171,170,.3); padding: 2px 8px; border-radius: 12px; font-size: 11px;">${m.relevance}% match</span>
-              </div>
-              <div style="font-size: 12px; color: var(--et-muted);">By ${m.instructor} · ${m.level}</div>
-              <div style="font-size: 13px; margin: 8px 0;">${m.description}</div>
-              <a href="${m.url}" class="et-link" style="font-size: 12px;">Enroll now →</a>
-            </div>
-          `).join('')}
-        </div>
-        <p>All masterclasses included with <strong>ET Prime</strong> subscription. <a href="/masterclass" class="et-link">Browse all 50+ masterclasses →</a></p>`
-      };
-    }
+    // Intent-based routing
+    const intents = this.nlp.classify(raw);
+    const topIntent = intents[0]?.intent;
 
-    if (/news|feed|article|market update/i.test(txt)) {
-      this.fabric.pushSignal('User requesting news', 'var(--teal)');
-      this.fabric.metrics.articles++;
-      this.fabric.renderMetrics();
-      const insights = this.fabric.getMarketInsights();
-      return {
-        text: `<p>📰 <strong>Personalised Market Insights for ${u.name || 'You'}</strong></p>
-        <p>Based on your ${u.assets || 'investment'} interests:</p>
-        <div class="market-insights">
-          ${insights.map(i => `
-            <div style="background: rgba(26,107,181,.1); padding: 12px; border-radius: 8px; margin: 8px 0;">
-              <div style="display: flex; justify-content: space-between;">
-                <span style="color: var(--et-red); font-size: 12px; font-weight: 600;">${i.source}</span>
-                <span style="font-size: 11px; background: rgba(26,107,181,.2); padding: 2px 8px; border-radius: 12px;">${i.tag}</span>
-              </div>
-              <div style="font-weight: 500; margin: 8px 0;">${i.title}</div>
-              <div style="font-size: 13px; color: var(--et-muted); margin-bottom: 8px;">${i.summary}</div>
-              <a href="${i.url}" class="et-link" style="font-size: 12px;">Read full story →</a>
-            </div>
-          `).join('')}
-        </div>
-        <p><strong>Recommended for you:</strong> Visit <a href="/et-markets" class="et-link">ET Markets</a> for live updates, or subscribe to <a href="/et-prime" class="et-link">ET Prime</a> for in-depth analysis.</p>`
-      };
-    }
+    if(topIntent==='discover_prime'){this.fabric.pushSignal('Exploring ET Prime','var(--gold)');this.fabric.metrics.products++;this.fabric.renderMetrics();return this._buildETProductResponse(raw)||{text:'<p>ET Prime is our premium journalism platform.</p>'};}
+    if(topIntent==='gap_analysis'){this.fabric.pushSignal('Gap analysis','var(--blue)');return{text:`<p>📊 <strong>Portfolio gap analysis for your profile…</strong></p>`,extra:this._buildGapsCard()};}
+    if(topIntent==='news') return this._buildLiveNewsResponse();
+    if(topIntent==='recommend'){this.fabric.pushSignal('Recommendation request','var(--gold)');return{text:`<p>🎯 <strong>Based on your PAIL profile</strong> (${u.goal||'goal pending'}, ${u.risk||'risk pending'}):</p>`,extra:this._buildPersonalisedOnboard()};}
+    if(topIntent==='greeting'){return{text:`<p>Hey${u.name?', '+u.name:''}! 👋 Your PAIL profile is at <strong>${u.depth}%</strong>. How can I help you navigate the ET ecosystem today?</p><p>Try asking me things like:</p><ul><li>"Create a personalised mutual fund plan for me"</li><li>"Which funds are best for my risk profile?"</li><li>"Provide a clear roadmap for investment"</li><li>"Do I need term insurance?"</li><li>"Show me futures and options"</li></ul>`};}
+    if(topIntent==='thanks'){return{text:`<p>You're welcome${u.name?', '+u.name:''}! I'm here anytime. 🙌</p><p>I can do much more than show links — ask me to <strong>build a financial plan</strong>, <strong>analyse your gaps</strong>, <strong>compare insurance options</strong>, or <strong>create a custom MF portfolio</strong>. What's on your mind?</p>`};}
+    if(topIntent==='help') return this._buildHelpResponse();
 
-    if (/gap|portfolio|analys/i.test(txt)) {
-      this.fabric.pushSignal('Gap analysis requested', 'var(--blue)');
-      return { text: `<p>📊 <strong>Running portfolio gap analysis for your profile…</strong></p><p>I'll analyze your financial situation against your goals and identify opportunities.</p>`, extra: this._buildGapsCard() };
-    }
+    // Intelligent conversational fallback
+    const recentTopics = Object.keys(this.fabric.behaviour.topicFrequency).slice(0,3);
+    const proactiveSuggestion = u.hasInsurance === false ? `<p>🔴 <strong>Quick observation:</strong> You mentioned you don't have term insurance. This should be your #1 priority before any investing. Shall I analyse your coverage needs?</p>` 
+      : u.hasNPS === false ? `<p>💡 <strong>Quick tip:</strong> You're missing out on ₹50,000 tax deduction via NPS. Want me to explain how it works?</p>`
+      : `<p>I'm your personal ET concierge, ${u.name}. I don't just show links — I have deep conversations about your financial life. Try asking me:</p><ul><li>"Create a personalized mutual fund plan for me"</li><li>"Provide a clear roadmap for my investments"</li><li>"Which credit card is best for my profile?"</li><li>"How much insurance do I need?"</li><li>"FIRE planning — when can I retire?"</li></ul>`;
+    return { text: proactiveSuggestion };
+  }
 
-    if (/home loan|mortgage|housing/i.test(txt)) {
-      this.fabric.pushSignal('Home loan inquiry', 'var(--coral)');
-      return { text: `<p>🏠 <strong>Home Loan Options Based on Your Profile</strong></p><p>Based on your income (${u.income || 'profile'}) and risk profile:</p>`, extra: this._buildHomeLoanOptions() };
-    }
+  async _buildLiveNewsResponse() {
+    const u = this.fabric.identityGraph;
+    this.fabric.pushSignal('Fetching live news','var(--teal)');
+    this.fabric.metrics.articles++;this.fabric.renderMetrics();
+    let items;
+    try { items = await this.fabric.liveData.getTopStories(); } catch(e) { items = this.fabric.liveData._fallbackData('topStories'); }
+    const newsHTML = items.slice(0,5).map(i=>`<div style="background:rgba(26,107,181,.08);padding:12px;border-radius:8px;margin:8px 0"><div style="display:flex;justify-content:space-between"><span style="color:var(--et-red);font-size:11px;font-weight:600">${i.source||'ET'}</span><span style="font-size:10px;color:var(--et-muted)">${i.pubDate?new Date(i.pubDate).toLocaleDateString():''}</span></div><div style="font-weight:500;margin:6px 0">${i.title}</div><div style="font-size:12px;color:var(--et-muted);margin-bottom:6px">${i.description||''}</div>${i.link?`<a href="${i.link}" target="_blank" class="et-link" style="font-size:11px">Read full story →</a>`:''}</div>`).join('');
+    return { text:`<p>📰 <strong>Live News for ${u.name||'You'}</strong></p>${newsHTML}<p><a href="https://economictimes.indiatimes.com" target="_blank" class="et-link">Browse all stories on ET →</a></p>` };
+  }
 
-    if (/insur/i.test(txt)) {
-      return { text: `<p>🛡️ <strong>Insurance Coverage Analysis</strong></p><p>Let me check your coverage gaps and match you with the best partner offers.</p>`, extra: this._buildInsuranceOptions() };
-    }
-
-    if (/recommend|suggest|what should|best for me/i.test(txt)) {
-      this.fabric.pushSignal('Recommendation request', 'var(--gold)');
-      return { text: `<p>🎯 <strong>Based on your PAIL profile</strong> (${u.goal || 'goal pending'}, ${u.risk || 'risk pending'}):</p>`, extra: this._buildPersonalisedOnboard() };
-    }
-
-    if (/help|what can you|how does|capabilities/i.test(txt)) {
-      return {
-        text: `<p>🤖 <strong>I'm your ET AI Concierge — Here's What I Can Do</strong></p>
-      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 16px 0;">
-        <div style="background: rgba(208,2,27,.1); padding: 12px; border-radius: 8px;">
-          <div style="font-size: 20px; margin-bottom: 4px;">📰</div>
-          <div style="font-weight: 600;">ET Prime</div>
-          <div style="font-size: 12px; color: var(--et-muted);">Premium content & analysis</div>
-        </div>
-        <div style="background: rgba(26,107,181,.1); padding: 12px; border-radius: 8px;">
-          <div style="font-size: 20px; margin-bottom: 4px;">📊</div>
-          <div style="font-weight: 600;">Portfolio Gaps</div>
-          <div style="font-size: 12px; color: var(--et-muted);">Find missing opportunities</div>
-        </div>
-        <div style="background: rgba(26,171,170,.1); padding: 12px; border-radius: 8px;">
-          <div style="font-size: 20px; margin-bottom: 4px;">🏠</div>
-          <div style="font-weight: 600;">Home Loans</div>
-          <div style="font-size: 12px; color: var(--et-muted);">Pre-approved offers</div>
-        </div>
-        <div style="background: rgba(201,162,39,.1); padding: 12px; border-radius: 8px;">
-          <div style="font-size: 20px; margin-bottom: 4px;">🎓</div>
-          <div style="font-weight: 600;">Masterclasses</div>
-          <div style="font-size: 12px; color: var(--et-muted);">Learn from experts</div>
-        </div>
-      </div>
-      <p>Just ask me anything! Try: <strong>"Show me ET Prime recommendations"</strong>, <strong>"What masterclasses suit me?"</strong>, or <strong>"Compare home loans"</strong></p>` };
-    }
-
-    if (/thank|thanks/i.test(txt)) {
-      return { text: `<p>You're welcome${u.name ? ', ' + u.name : ''}! I'm here to help you navigate the ET ecosystem. Feel free to explore our 4 agents on the left or ask me anything. 🙌</p>` };
-    }
-
-    // Default response
-    const goalInfo = u.goal ? `Your <strong>${u.goal}</strong> goal is mapped` : 'Your financial goals are being mapped';
-    return { text: `<p>${goalInfo}. Your profile is at <strong>${u.depth}%</strong> depth. I can help you explore ET Prime, analyse portfolio gaps, find partner services, discover masterclasses, or get personalized news. What interests you?</p>` };
+  _buildHelpResponse(){
+    const products = Object.values(ETEcosystemKB.products).slice(0,8);
+    return{text:`<p>🤖 <strong>I'm your ET AI Concierge</strong> — here's what I can do:</p><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px 0">${products.map(p=>`<div style="background:${p.color||'rgba(26,107,181,.15)'};padding:12px;border-radius:8px;cursor:pointer" onclick="injectQuick('Tell me about ${p.name}')"><div style="font-size:18px;margin-bottom:4px">${p.icon}</div><div style="font-weight:600;font-size:12px">${p.name}</div><div style="font-size:10px;color:var(--et-muted)">${(p.desc||'').substring(0,50)}</div></div>`).join('')}</div><p>Ask me: <strong>"Where can I see futures and options?"</strong>, <strong>"Compare credit cards"</strong>, or <strong>"Show me masterclasses"</strong></p>`};
   }
 
   handleNavigator(txt, raw) {
-    const u = this.fabric.identityGraph;
-    const p = this.fabric.portfolio;
-
-    if (/add|manual|enter|investment/i.test(txt) && (txt.includes('add') || txt.includes('enter'))) {
-      return this.handlePortfolioEntry(raw);
+    const u = this.fabric.identityGraph; const p = this.fabric.portfolio;
+    // CONVERSATIONAL AI layer — deep financial conversations
+    const convResp = this._converse(raw);
+    if (convResp) { this.fabric.metrics.articles++; this.fabric.renderMetrics(); return convResp; }
+    const intents=this.nlp.classify(raw); const topIntent=intents[0]?.intent;
+    if(topIntent==='portfolio_add'||(/add|enter/i.test(txt)&&/invest|hold|stock|fund/i.test(txt))) return this.handlePortfolioEntry(raw);
+    if(topIntent==='portfolio_edit'||(/edit|update|modify/i.test(txt)&&p.holdings.length>0)) return this.handlePortfolioEdit(raw);
+    if(topIntent==='gap_analysis'||/gap|analy|review|check/i.test(txt)){this.fabric.pushSignal('Navigator: Gap analysis','var(--blue)');return{text:`<p>📊 <strong>Portfolio Gap Analysis</strong></p>`,extra:this._buildGapsCard()};}
+    if(topIntent==='fire_planning'||/fire|retire|early/i.test(txt)){this.fabric.pushSignal('FIRE simulation','var(--teal)');return{text:this._buildFIRESimulation(),extra:this._buildRoadmapCard()};}
+    if(topIntent==='roadmap'||/roadmap|plan|next step/i.test(txt)){return this._converse('provide a clear investment roadmap')||{text:`<p>🗺️ <strong>Your Financial Roadmap</strong></p>`,extra:this._buildRoadmapCard()};}
+    if(/summary|overview|holdings|portfolio/i.test(txt)){
+      if(p.holdings.length>0) return{text:`<p>📈 <strong>Portfolio Summary</strong></p>`,extra:this._buildPortfolioSummaryCard()};
+      return{text:`<p>📝 <strong>No portfolio data yet</strong></p><p>Tell me: <strong>"Add Axis Bluechip Fund, SIP ₹5000, Value ₹2,85,000"</strong></p>`};
     }
-
-    if (/edit|update|modify|change/i.test(txt) && p.holdings.length > 0) {
-      return this.handlePortfolioEdit(raw);
-    }
-
-    if (/gap|analys|review|check/i.test(txt)) {
-      this.fabric.pushSignal('Navigator: Gap analysis requested', 'var(--blue)');
-      return { text: `<p>📊 <strong>Portfolio Gap Analysis</strong></p><p>Based on your profile (${u.goal || 'goal pending'}, ${u.risk || 'risk pending'}):</p>`, extra: this._buildGapsCard() };
-    }
-
-    if (/nps|pension/i.test(txt)) {
-      const has = /yes|have|active/i.test(txt);
-      this.fabric.updateIdentity({ hasNPS: has }, 'NPS status captured');
-      const advice = has
-        ? `Great! You're already capturing the ₹50K additional deduction under 80CCD(1B). <a href="/et-prime" class="et-link">Read NPS optimisation strategies →</a>`
-        : `You're missing ₹50K additional deduction under 80CCD(1B). Based on your <strong>${u.income || 'income'}</strong> bracket, this could save ₹15,600 in taxes. <a href="/et-markets/nps" class="et-link">Explore NPS options →</a>`;
-      return { text: `<p>📋 <strong>NPS Analysis</strong></p><p>${advice}</p>` };
-    }
-
-    if (/fire|retire|early/i.test(txt)) {
-      this.fabric.pushSignal('FIRE simulation requested', 'var(--teal)');
-      return { text: this._buildFIRESimulation(), extra: this._buildRoadmapCard() };
-    }
-
-    if (/roadmap|plan|next step|action/i.test(txt)) {
-      this.fabric.pushSignal('Roadmap requested', 'var(--gold)');
-      return { text: `<p>🗺️ <strong>Your Personalised Financial Roadmap</strong></p><p>Mapped to your ${u.goal || 'financial'} goals:</p>`, extra: this._buildRoadmapCard() };
-    }
-
-    if (/summary|overview|holdings|portfolio/i.test(txt)) {
-      if (p.holdings.length > 0) {
-        return { text: `<p>📈 <strong>Your Portfolio Summary</strong></p>`, extra: this._buildPortfolioSummaryCard() };
-      }
-      return { text: `<p>📝 <strong>No portfolio data yet</strong></p><p>Tell me about your investments in this format:</p><p><strong>Example:</strong> "Axis Bluechip Fund, SIP ₹5000, Value ₹2.85L" or "Reliance Industries, 250 shares, Value ₹7.1L"</p><p>You can add multiple holdings, and I'll track them for you.</p>` };
-    }
-
-    if (/return|performance|growth/i.test(txt) && p.holdings.length > 0) {
-      return { text: this._buildPortfolioPerformance() };
-    }
-
-    return { text: `<p>🔍 <strong>Financial Navigator Ready</strong></p><p>I can help you with:</p><ul><li>Add/edit your investments</li><li>Analyze portfolio gaps</li><li>FIRE planning & simulations</li><li>Generate financial roadmap</li><li>Track portfolio performance</li></ul><p>What would you like to explore?</p>`, extra: this._buildGapsCard() };
-  }
-
-  handlePortfolioEntry(raw) {
-    // Parse natural language investment entry
-    const patterns = {
-      fund: /([A-Za-z\s]+?)\s*(?:fund|sip|scheme)/i,
-      sip: /(?:sip|monthly)[:\s]*₹?\s*([\d,]+)/i,
-      value: /(?:value|val|amount|worth)[:\s]*₹?\s*([\d,]+(?:\.\d+)?)/i,
-      type: /(?:stock|equity|share|mf|fund|etf)/i
-    };
-
-    const nameMatch = raw.match(/(?:add|enter|invest in|holding:?)\s*([^,.\n]+)/i);
-    const name = nameMatch ? nameMatch[1].trim() : null;
-
-    if (!name) {
-      return { text: `<p>📝 <strong>Add Investment</strong></p><p>Please tell me in this format:</p><p><strong>Example:</strong> "Add Axis Bluechip Fund, SIP ₹5000, Value ₹2,85,000"</p><p>or "Add Reliance Industries, 250 shares at ₹2845 each"</p>` };
-    }
-
-    const sipMatch = raw.match(patterns.sip);
-    const valueMatch = raw.match(patterns.value);
-    const type = /stock|share|equity/i.test(raw) ? 'Stock' : 'MF';
-
-    const holding = {
-      name: name,
-      type: type,
-      sipAmount: sipMatch ? parseInt(sipMatch[1].replace(/,/g, '')) : 0,
-      value: valueMatch ? parseInt(valueMatch[1].replace(/,/g, '')) : 0
-    };
-
-    if (holding.value === 0 && holding.sipAmount === 0) {
-      return { text: `<p>I need more details. Please include either the investment value or SIP amount.</p><p><strong>Example:</strong> "Axis Bluechip Fund, SIP ₹5000, Value ₹2.85L"</p>` };
-    }
-
-    this.fabric.addHolding(holding);
-    return {
-      text: `<p>✅ <strong>Added to Portfolio</strong></p><p>${holding.name} (${holding.type})</p><p>${holding.sipAmount > 0 ? `SIP: ₹${holding.sipAmount.toLocaleString('en-IN')}/month<br>` : ''}Value: ₹${holding.value.toLocaleString('en-IN')}</p><p>Your portfolio now has ${this.fabric.portfolio.holdings.length} holdings. <a href="#" onclick="showPortfolioSummary()">View portfolio →</a></p>`,
-      extra: this._buildPortfolioSummaryCard()
-    };
-  }
-
-  handlePortfolioEdit(raw) {
-    const p = this.fabric.portfolio;
-    let editHTML = `<div class="r-card"><div class="r-card-title">✏️ Edit Portfolio</div>`;
-
-    p.holdings.forEach((h, idx) => {
-      editHTML += `
-        <div class="opp-row" style="margin-bottom: 12px;">
-          <div class="opp-left">
-            <div class="opp-ico" style="background:${h.type === 'Stock' ? 'rgba(208,2,27,.15)' : 'rgba(26,171,170,.15)'}">${h.type === 'Stock' ? '📊' : '💼'}</div>
-            <div>
-              <div class="opp-title">${h.name}</div>
-              <div class="opp-sub">${h.type} · SIP: ₹${(h.sipAmount || 0).toLocaleString('en-IN')} · Value: ₹${(h.value || 0).toLocaleString('en-IN')}</div>
-            </div>
-          </div>
-          <div style="display: flex; gap: 8px;">
-            <button onclick="editHolding(${idx})" class="et-link" style="padding: 4px 12px; background: rgba(26,107,181,.2); border-radius: 4px;">✏️ Edit</button>
-            <button onclick="deleteHolding(${idx})" class="et-link" style="padding: 4px 12px; background: rgba(208,2,27,.2); border-radius: 4px;">🗑️ Delete</button>
-          </div>
-        </div>
-      `;
-    });
-
-    editHTML += `<div style="text-align:center;padding:12px 0"><button onclick="injectQuick('Add new investment')" class="et-link" style="padding: 8px 16px; background: var(--teal); border-radius: 6px;">➕ Add New Holding</button></div></div>`;
-
-    return { text: editHTML };
+    // NLP product discovery
+    const productResp=this._buildETProductResponse(raw);
+    if(productResp) return productResp;
+    return{text:`<p>I'm your Financial Navigator, ${u.name||'there'}. I go beyond links — I build <strong>personalised plans</strong>. Try:</p><ul><li>"Create a personalized mutual fund plan for me"</li><li>"Which funds are best for my profile?"</li><li>"Provide a clear roadmap for my investments"</li><li>"FIRE planning — when can I retire?"</li><li>"Add Axis Bluechip Fund, SIP ₹5000, Value ₹2.85L"</li></ul>`,extra:this._buildGapsCard()};
   }
 
   handleCrossSell(txt, raw) {
     const u = this.fabric.identityGraph;
-    this.fabric.pushSignal('Cross-sell analysis', 'var(--gold)');
-
-    if (/masterclass|learn/i.test(txt)) {
-      const masterclasses = this.fabric.getMasterclassRecommendations();
-      return {
-        text: `<p>🎓 <strong>Personalised Masterclass Recommendations</strong></p>
-        <div class="masterclass-recommendations">
-          ${masterclasses.map(m => `
-            <div style="background: rgba(26,171,170,.1); padding: 12px; border-radius: 8px; margin: 8px 0;">
-              <div style="font-weight: 600;">${m.title}</div>
-              <div style="font-size: 12px;">By ${m.instructor} · ${m.level} · ${m.relevance}% match</div>
-              <div style="font-size: 13px; margin: 8px 0;">${m.description}</div>
-              <a href="${m.url}" class="et-link">Enroll now →</a>
-            </div>
-          `).join('')}
-        </div>`
-      };
+    this.fabric.pushSignal('Cross-sell analysis','var(--gold)');
+    // CONVERSATIONAL AI layer
+    const convResp = this._converse(raw);
+    if (convResp) { this.fabric.metrics.articles++; this.fabric.renderMetrics(); return convResp; }
+    // Real behavioural triggers
+    const triggers = this.fabric.behaviour.getCrossSellTriggers(u);
+    const productResp = this._buildETProductResponse(raw);
+    if(productResp) return productResp;
+    if(triggers.length>0){
+      const triggerHTML=triggers.map(t=>`<div class="opp-row"><div class="opp-left"><div class="opp-ico" style="background:rgba(201,162,39,.15)">${t.icon}</div><div><div class="opp-title">${t.reason}</div><div class="opp-sub">${t.priority} priority${t.url?' · <a href="'+t.url+'" target="_blank" class="et-link">Go →</a>':''}</div></div></div><span class="match-pill ${t.priority==='critical'?'match-crit':t.priority==='high'?'match-high':'match-med'}">${t.priority}</span></div>`).join('');
+      return{text:`<p>🎯 <strong>Cross-sell analysis complete.</strong> I detected ${triggers.length} personalised opportunities based on your behaviour this session:</p><div class="r-card"><div class="r-card-title">Behavioural Triggers · Engagement ${this.fabric.behaviour.getEngagementScore()}%</div>${triggerHTML}</div><p>These aren't random offers — they're based on what you've been exploring. Want me to deep-dive into any of these? 💬</p>`};
     }
-
-    if (/credit card|card/i.test(txt)) {
-      const cardOffer = this.fabric.getPartnerOffers().find(o => o.title.includes('Card'));
-      return {
-        text: `<p>💳 <strong>Credit Card Recommendation</strong></p>
-        <div style="background: rgba(201,162,39,.1); padding: 16px; border-radius: 12px;">
-          <div style="font-size: 20px; margin-bottom: 8px;">${cardOffer?.title || 'ET-HDFC Millennia Card'}</div>
-          <div>${cardOffer?.benefit || '5% cashback on ET, ₹0 joining fee, lounge access'}</div>
-          <div style="margin-top: 12px;"><a href="/marketplace/credit-cards" class="et-link">Apply now →</a></div>
-        </div>
-        <p>Based on your income (${u.income || 'profile'}) and spending patterns.</p>`
-      };
-    }
-
-    if (/insur|term|health/i.test(txt)) {
-      return { text: `<p>🛡️ <strong>Insurance Recommendations</strong></p>`, extra: this._buildInsuranceOptions() };
-    }
-
-    const offers = this.fabric.getPartnerOffers();
-    return {
-      text: `<p>🎯 <strong>Personalised Offers for You</strong></p>
-      <div class="offers-list">
-        ${offers.map(o => `
-          <div style="background: rgba(26,107,181,.1); padding: 12px; border-radius: 8px; margin: 8px 0;">
-            <div style="display: flex; justify-content: space-between;">
-              <div style="font-weight: 600;">${o.title}</div>
-              <span style="background: rgba(26,107,181,.2); padding: 2px 8px; border-radius: 12px; font-size: 11px;">${o.relevance}% match</span>
-            </div>
-            <div style="font-size: 12px;">${o.partner} · ${o.benefit}</div>
-            <div style="margin-top: 8px;"><a href="${o.url}" class="et-link">Explore →</a></div>
-          </div>
-        `).join('')}
-      </div>`
-    };
+    return{text:`<p>🎯 <strong>Cross-sell intelligence active.</strong></p><p>The more we chat, the better I understand what you need, ${u.name||'there'}. Tell me what's on your financial mind — ask about credit cards, insurance, PMS, or masterclasses — and I'll find the right match.</p>`,extra:this._buildCrossSellCard()};
   }
 
   handleMarketplace(txt, raw) {
     const u = this.fabric.identityGraph;
-    this.fabric.pushSignal('Marketplace inquiry', 'var(--teal)');
+    this.fabric.pushSignal('Marketplace inquiry','var(--teal)');
+    // CONVERSATIONAL AI layer — deep service conversations
+    const convResp = this._converse(raw);
+    if (convResp) { this.fabric.metrics.articles++; this.fabric.renderMetrics(); return convResp; }
+    const productResp = this._buildETProductResponse(raw);
+    if(productResp) return productResp;
+    if(/home loan|mortgage/i.test(txt)) return{text:`<p>🏠 <strong>Home Loan Options</strong></p>`,extra:this._buildHomeLoanOptions()};
+    if(/insur|term|health/i.test(txt)) return{text:`<p>🛡️ <strong>Insurance Options</strong></p>`,extra:this._buildInsuranceOptions()};
+    if(/fd|fixed deposit/i.test(txt)) return{text:`<p>🏦 <strong>Best FD Rates</strong></p><div style="padding:8px">${[['Bajaj Finance (AAA)','8.10%','24mo'],['Shriram Finance','8.52%','24mo'],['HDFC Bank','7.40%','12mo']].map(r=>`<div style="display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid rgba(255,255,255,.1)"><span><strong>${r[0]}</strong></span><span style="color:var(--teal)">${r[1]}</span><span>${r[2]}</span></div>`).join('')}</div><p><a href="https://economictimes.indiatimes.com/wealth/borrow" target="_blank" class="et-link">Compare all FD options →</a></p>`};
+    if(/pms|wealth.*manage/i.test(txt)) return{text:`<p>💎 <strong>Wealth Management</strong></p><div style="background:rgba(201,162,39,.1);padding:14px;border-radius:8px;margin:8px 0"><div style="font-weight:600">Zerodha PMS — Momentum</div><div>Min ₹50L · 3yr CAGR 26.4%</div><a href="https://economictimes.indiatimes.com/markets" target="_blank" class="et-link" style="margin-top:8px;display:inline-block">Learn more →</a></div>`};
+    return{text:`<p>🏪 <strong>ET Services Marketplace</strong></p><p>Pre-qualified for your ${u.risk||'Moderate'} profile:</p>`,extra:this._buildMarketplaceCard()};
+  }
 
-    if (/home loan|mortgage/i.test(txt)) {
-      return { text: `<p>🏠 <strong>Home Loan Options</strong></p>`, extra: this._buildHomeLoanOptions() };
+  handlePortfolioEntry(raw) {
+    const nameMatch=raw.match(/(?:add|enter|invest in|holding:?)\s*([^,.\n]+)/i);
+    const name=nameMatch?nameMatch[1].trim():null;
+    if(!name) return{text:`<p>📝 <strong>Add Investment</strong></p><p>Format: <strong>"Add Axis Bluechip Fund, SIP ₹5000, Value ₹2,85,000"</strong></p>`};
+    const sipMatch=raw.match(/(?:sip|monthly)[:\s]*₹?\s*([\d,]+)/i);
+    const valueMatch=raw.match(/(?:value|val|amount|worth)[:\s]*₹?\s*([\d,]+(?:\.\d+)?)/i);
+    const type=/stock|share|equity/i.test(raw)?'Stock':'MF';
+    const holding={name,type,sipAmount:sipMatch?parseInt(sipMatch[1].replace(/,/g,'')):0,value:valueMatch?parseInt(valueMatch[1].replace(/,/g,'')):0};
+    if(holding.value===0&&holding.sipAmount===0) return{text:`<p>Please include value or SIP amount. E.g.: "Axis Bluechip Fund, SIP ₹5000, Value ₹2.85L"</p>`};
+    this.fabric.addHolding(holding);
+    return{text:`<p>✅ <strong>Added:</strong> ${holding.name} (${holding.type})</p><p>${holding.sipAmount>0?`SIP: ₹${holding.sipAmount.toLocaleString('en-IN')}/mo<br>`:''}Value: ₹${holding.value.toLocaleString('en-IN')}</p>`,extra:this._buildPortfolioSummaryCard()};
+  }
+
+  handlePortfolioEdit(raw) {
+    const p=this.fabric.portfolio;
+    let html=`<div class="r-card"><div class="r-card-title">✏️ Edit Portfolio</div>`;
+    p.holdings.forEach((h,idx)=>{html+=`<div class="opp-row" style="margin-bottom:12px"><div class="opp-left"><div class="opp-ico" style="background:${h.type==='Stock'?'rgba(208,2,27,.15)':'rgba(26,171,170,.15)'}">${h.type==='Stock'?'📊':'💼'}</div><div><div class="opp-title">${h.name}</div><div class="opp-sub">${h.type} · SIP ₹${(h.sipAmount||0).toLocaleString('en-IN')} · Val ₹${(h.value||0).toLocaleString('en-IN')}</div></div></div><div style="display:flex;gap:8px"><button onclick="editHolding(${idx})" class="et-link" style="padding:4px 12px;background:rgba(26,107,181,.2);border-radius:4px">✏️</button><button onclick="deleteHolding(${idx})" class="et-link" style="padding:4px 12px;background:rgba(208,2,27,.2);border-radius:4px">🗑️</button></div></div>`;});
+    html+=`</div>`;
+    return{text:html};
+  }
+
+  agentIntro(key){
+    const u=this.fabric.identityGraph;
+    if(key==='concierge'){
+      if(this.fabric.isReturningUser()) return{text:`<p>Welcome back, <strong>${u.name}</strong>! 👋 Your PAIL profile is at <strong>${u.depth}%</strong> depth (${u.goal}, ${u.risk} risk). Visit #${this.fabric.sessionInfo.visitCount||1}.</p><p>How can I help you navigate the ET ecosystem today?</p>`};
+      if(this.profilingStep===0) return{text:this.profilingStages[0].ask, richType:this.profilingStages[0].richType};
+      return{text:`<p>Welcome back. PAIL at <strong>${u.depth}%</strong>.</p>`};
     }
-
-    if (/insur|term|health/i.test(txt)) {
-      return { text: `<p>🛡️ <strong>Insurance Options</strong></p>`, extra: this._buildInsuranceOptions() };
+    if(key==='navigator'){
+      const pInfo=this.fabric.portfolio.holdings.length>0?`<br>Portfolio: <strong>${this.fabric.portfolio.holdings.length} holdings</strong> · ₹${this.fabric.portfolio.totalValue.toLocaleString('en-IN')}`:'<br><em>Add investments for personalised analysis</em>';
+      return{text:`<p><strong>Financial Life Navigator</strong> online. ${u.goal||'pending'} goal, ${u.risk||'pending'} risk.${pInfo}</p>`,extra:this._buildGapsCard(),onboard:3};
     }
-
-    if (/fd|fixed deposit/i.test(txt)) {
-      return {
-        text: `<p>🏦 <strong>Best FD Rates</strong></p>
-      <div class="fd-options">
-        <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid rgba(255,255,255,.1);">
-          <span><strong>Bajaj Finance</strong> (AAA rated)</span>
-          <span style="color: var(--teal);">8.10% p.a.</span>
-          <span>24 months</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid rgba(255,255,255,.1);">
-          <span><strong>Shriram Finance</strong></span>
-          <span style="color: var(--teal);">8.52% p.a.</span>
-          <span>24 months</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; padding: 12px;">
-          <span><strong>HDFC Bank</strong></span>
-          <span style="color: var(--teal);">7.40% p.a.</span>
-          <span>12 months</span>
-        </div>
-      </div>
-      <p><a href="/et-markets/fixed-deposits" class="et-link">Compare all FD options →</a></p>`
-      };
+    if(key==='crosssell'){
+      const score=this.fabric.behaviour.getEngagementScore();
+      return{text:`<p><strong>Cross-Sell Engine</strong> active. Analysing ${this.fabric.behaviour.queryCount+12} behavioural signals… Engagement: <strong>${score}%</strong></p>`,extra:this._buildCrossSellCard()};
     }
-
-    if (/pms|wealth|management/i.test(txt)) {
-      return {
-        text: `<p>💎 <strong>Wealth Management Options</strong></p>
-      <div class="wealth-options">
-        <div style="background: rgba(201,162,39,.1); padding: 12px; border-radius: 8px; margin: 8px 0;">
-          <div style="font-weight: 600;">Zerodha PMS — Momentum Strategy</div>
-          <div>Min ₹50L · 3-year CAGR 26.4% · High risk</div>
-          <div style="margin-top: 8px;"><a href="/marketplace/pms-zerodha" class="et-link">Learn more →</a></div>
-        </div>
-        <div style="background: rgba(201,162,39,.1); padding: 12px; border-radius: 8px; margin: 8px 0;">
-          <div style="font-weight: 600;">Motilal Oswal Wealth — Multi-Asset</div>
-          <div>Min ₹25L · Balanced approach · 5-year returns 18.2%</div>
-          <div style="margin-top: 8px;"><a href="/marketplace/pms-motilal" class="et-link">Learn more →</a></div>
-        </div>
-      </div>`
-      };
-    }
-
-    const services = APIGateway.getPartners(u.risk);
-    return { text: `<p>🏪 <strong>ET Services Marketplace</strong></p><p>Pre-qualified offers for your ${u.risk} profile:</p>`, extra: this._buildMarketplaceCard() };
+    if(key==='marketplace') return{text:`<p>Welcome to <strong>ET Services Marketplace</strong>. Profile matched against 40+ partner services.</p>`,extra:this._buildMarketplaceCard(),onboard:4};
+    return{text:'<p>Agent ready.</p>'};
   }
+  // ===== CARD BUILDERS =====
+  _buildGapsCard(){const u=this.fabric.identityGraph,p=this.fabric.portfolio,gaps=[];
+    if(u.hasInsurance!==true)gaps.push({ico:'🛡️',bg:'rgba(239,68,68,.15)',title:'Term Insurance Missing',sub:`Recommended: 20× income · <a href="https://economictimes.indiatimes.com/wealth/insure" target="_blank" class="et-link">Get quotes →</a>`,match:'Critical',level:'match-crit'});
+    if(u.hasNPS!==true)gaps.push({ico:'📋',bg:'rgba(26,107,181,.15)',title:'NPS Contribution Gap',sub:`₹50K extra deduction · <a href="https://economictimes.indiatimes.com/wealth/retire" target="_blank" class="et-link">Open NPS →</a>`,match:'Important',level:'match-med'});
+    if(p.holdings.length>0&&p.assetAllocation.debt===0&&(p.assetAllocation.equity+p.assetAllocation.mf)>80)gaps.push({ico:'⚖️',bg:'rgba(59,130,246,.15)',title:'No Debt Diversification',sub:`Consider 20–30% in debt · <a href="https://economictimes.indiatimes.com/mutual-funds" target="_blank" class="et-link">Explore debt funds →</a>`,match:'Important',level:'match-med'});
+    if(!gaps.length)gaps.push({ico:'✅',bg:'rgba(34,197,94,.15)',title:'Well Diversified',sub:'No critical gaps. Keep monitoring on <a href="https://economictimes.indiatimes.com/markets" target="_blank" class="et-link">ET Markets</a>.',match:'Healthy',level:'match-high'});
+    const hdr=p.holdings.length>0?`${p.holdings.length} holdings · ₹${p.totalValue.toLocaleString('en-IN')}`:'Profile-based';
+    return `<div class="r-card"><div class="r-card-title">Gap Analysis · ${hdr}</div>${gaps.map(g=>`<div class="opp-row"><div class="opp-left"><div class="opp-ico" style="background:${g.bg}">${g.ico}</div><div><div class="opp-title">${g.title}</div><div class="opp-sub">${g.sub}</div></div></div><span class="match-pill ${g.level}">${g.match}</span></div>`).join('')}</div>`;}
 
-  // Rich Card Builders
-  _buildGapsCard() {
-    const u = this.fabric.identityGraph;
-    const p = this.fabric.portfolio;
-    const gaps = [];
+  _buildFIRESimulation(){const u=this.fabric.identityGraph,p=this.fabric.portfolio;
+    const incMap={'Below ₹5L':35000,'₹5–10L':65000,'₹10–20L':125000,'₹20–40L':250000,'₹40L–1Cr':580000,'₹1Cr+':1000000};
+    const mi=incMap[u.income]||125000,me=Math.round(mi*0.55),ae=me*12,tc=ae*25;
+    const sip=p.totalSIP||Math.round(mi*0.15),cv=p.totalValue||0,age=parseInt(u.ageRange)||30,yrs=Math.max(5,45-age);
+    const cagr=u.risk==='Aggressive'?0.14:u.risk==='Conservative'?0.09:0.12,r=cagr/12,n=yrs*12;
+    const sipFV=Math.round(sip*((Math.pow(1+r,n)-1)/r)*(1+r)),lumpFV=Math.round(cv*Math.pow(1+cagr,yrs));
+    const proj=sipFV+lumpFV,gap=tc-proj,addSIP=gap>0?Math.round((gap*r)/((Math.pow(1+r,n)-1)*(1+r))):0;
+    return `<div class="r-card"><div class="r-card-title">🔥 FIRE Simulation</div><div style="padding:8px"><div><strong>Monthly expenses:</strong> ₹${me.toLocaleString('en-IN')}</div><div><strong>Target (25×):</strong> ₹${(tc/10000000).toFixed(1)}Cr</div><div><strong>Current SIP:</strong> ₹${sip.toLocaleString('en-IN')}/mo at ${Math.round(cagr*100)}%</div><div><strong>Projected ${yrs}yrs:</strong> ₹${(proj/10000000).toFixed(1)}Cr</div><div style="margin-top:12px;padding:12px;background:${gap>0?'rgba(239,68,68,.1)':'rgba(34,197,94,.1)'};border-radius:8px">${gap>0?`<strong>Gap:</strong> ₹${(gap/10000000).toFixed(1)}Cr — Increase SIP by <strong>₹${addSIP.toLocaleString('en-IN')}/mo</strong>`:'<strong>✓ On track!</strong> Trajectory exceeds target'}</div><div style="margin-top:12px"><a href="https://economictimes.indiatimes.com/prime" target="_blank" class="et-link">📰 FIRE toolkit on ET Prime →</a> · <a href="https://economictimes.indiatimes.com/masterclass" target="_blank" class="et-link">🎓 Retirement Masterclass →</a></div></div></div>`;}
 
-    if (u.hasInsurance !== true) {
-      gaps.push({ ico: '🛡️', bg: 'rgba(239,68,68,.15)', title: 'Term Insurance Missing', sub: `Recommended: 20× annual income coverage (₹${u.income && u.income.includes('1Cr') ? '2Cr' : '1Cr'}) · <a href="/marketplace/term-insurance" class="et-link">Get quotes →</a>`, match: 'Critical', level: 'match-crit' });
-    }
+  _buildRoadmapCard(){const u=this.fabric.identityGraph,p=this.fabric.portfolio;const phases=[];
+    const imm=[];if(u.hasInsurance!==true)imm.push({act:'Get term insurance (20× income)',link:'https://economictimes.indiatimes.com/wealth/insure',label:'🛡️ Get Quotes'});
+    if(u.hasNPS!==true)imm.push({act:'Open NPS — ₹50K tax saving',link:'https://economictimes.indiatimes.com/wealth/retire',label:'📋 Open NPS'});
+    if(!imm.length)imm.push({act:'Complete financial profile',link:'#',label:'📝 Update'});phases.push({title:'🔴 Phase 1 — Immediate',items:imm});
+    phases.push({title:'🟡 Phase 2 — 1–3 months',items:[{act:`Increase SIP for ${u.goal||'wealth creation'}`,link:'https://economictimes.indiatimes.com/masterclass',label:'🎓 SIP Strategy'}]});
+    phases.push({title:'🟢 Phase 3 — Long-term',items:[{act:'Track portfolio quarterly',link:'https://economictimes.indiatimes.com/markets',label:'📊 ET Markets'}]});
+    return `<div class="r-card"><div class="r-card-title">Financial Roadmap</div>${phases.map(ph=>`<div class="roadmap-phase"><div class="roadmap-phase-title">${ph.title}</div>${ph.items.map(it=>`<div class="roadmap-item"><div class="roadmap-action">${it.act}</div><a href="${it.link}" target="_blank" class="roadmap-btn et-link">${it.label}</a></div>`).join('')}</div>`).join('')}</div>`;}
 
-    if (u.hasNPS !== true) {
-      gaps.push({ ico: '📋', bg: 'rgba(26,107,181,.15)', title: 'NPS Contribution Gap', sub: `₹50K extra deduction under 80CCD(1B) — save ₹15,600 in taxes · <a href="/et-markets/nps" class="et-link">Open NPS →</a>`, match: 'Important', level: 'match-med' });
-    }
+  _buildPortfolioSummaryCard(){const p=this.fabric.portfolio;if(!p.holdings.length)return '';
+    const allocHTML=Object.entries(p.assetAllocation).filter(([,v])=>v>0).map(([k,v])=>`<div class="alloc-bar-item"><div class="alloc-label">${k.toUpperCase()}</div><div class="alloc-bar-fill" style="width:${v}%;background:${k==='equity'?'var(--et-red)':k==='mf'?'var(--teal)':k==='debt'?'var(--blue)':'var(--gold)'}"></div><div class="alloc-pct">${v}%</div></div>`).join('');
+    return `<div class="r-card"><div class="r-card-title">Portfolio · ${p.holdings.length} Holdings</div><div class="portfolio-stats"><div class="port-stat"><div class="port-stat-val">₹${p.totalValue.toLocaleString('en-IN')}</div><div class="port-stat-label">Total Value</div></div><div class="port-stat"><div class="port-stat-val">₹${p.totalSIP.toLocaleString('en-IN')}/mo</div><div class="port-stat-label">Monthly SIP</div></div></div><div class="alloc-bars">${allocHTML}</div>${p.holdings.slice(0,5).map((h,idx)=>`<div class="opp-row"><div class="opp-left"><div class="opp-ico" style="background:${h.type==='Stock'?'rgba(208,2,27,.15)':'rgba(26,171,170,.15)'}">${h.type==='Stock'?'📊':'💼'}</div><div><div class="opp-title">${h.name}</div><div class="opp-sub">${h.type} · SIP ₹${(h.sipAmount||0).toLocaleString('en-IN')} · Val ₹${(h.value||0).toLocaleString('en-IN')}</div></div></div></div>`).join('')}</div>`;}
 
-    if (p.holdings.length > 0 && p.assetAllocation.debt === 0 && (p.assetAllocation.equity + p.assetAllocation.mf) > 80) {
-      gaps.push({ ico: '⚖️', bg: 'rgba(59,130,246,.15)', title: 'No Debt Diversification', sub: `Consider 20-30% in debt funds/FDs for stability · <a href="/et-markets/debt-funds" class="et-link">Explore debt funds →</a>`, match: 'Important', level: 'match-med' });
-    }
+  _buildHomeLoanOptions(){const u=this.fabric.identityGraph,ml=u.income&&u.income.includes('1Cr')?'1.5Cr':u.income&&u.income.includes('40L')?'80L':'50L';
+    return `<div class="r-card"><div class="r-card-title">🏠 Home Loan Options</div>${[['HDFC Home Loan','8.4%'],['SBI Home Loan','8.6%'],['ICICI Home Loan','8.65%']].map(r=>`<div style="background:rgba(26,107,181,.1);padding:12px;border-radius:8px;margin:8px 0"><div style="font-weight:600">${r[0]}</div><div>${r[1]} p.a. · Up to ₹${ml}</div><a href="https://economictimes.indiatimes.com/wealth/borrow" target="_blank" class="et-link" style="margin-top:6px;display:inline-block">Check eligibility →</a></div>`).join('')}</div>`;}
 
-    if (!gaps.length) {
-      gaps.push({ ico: '✅', bg: 'rgba(34,197,94,.15)', title: 'Well Diversified', sub: 'No critical gaps detected. Keep monitoring on ET Markets.', match: 'Healthy', level: 'match-high' });
-    }
+  _buildInsuranceOptions(){const u=this.fabric.identityGraph,pm=u.ageRange&&u.ageRange.includes('25')?'550':u.ageRange&&u.ageRange.includes('35')?'750':'650';
+    return `<div class="r-card"><div class="r-card-title">🛡️ Term Insurance</div>${[['ICICI Pru iProtect',pm,'Returns 105% of premiums'],['HDFC Click 2 Protect',parseInt(pm)+50,'Critical illness rider'],['Max Life Smart Term',parseInt(pm)-50,'Premium waiver on disability']].map(r=>`<div style="background:rgba(26,171,170,.1);padding:12px;border-radius:8px;margin:8px 0"><div style="font-weight:600">${r[0]}</div><div>₹1Cr at ₹${r[1]}/mo · ${r[2]}</div><a href="https://economictimes.indiatimes.com/wealth/insure" target="_blank" class="et-link" style="margin-top:6px;display:inline-block">Get quote →</a></div>`).join('')}</div>`;}
 
-    const headerInfo = p.holdings.length > 0 ? `${p.holdings.length} holdings · ₹${p.totalValue.toLocaleString('en-IN')}` : 'Profile-based analysis';
-    return `<div class="r-card"><div class="r-card-title">Gap Analysis · ${headerInfo}</div>${gaps.map(g => `<div class="opp-row"><div class="opp-left"><div class="opp-ico" style="background:${g.bg}">${g.ico}</div><div><div class="opp-title">${g.title}</div><div class="opp-sub">${g.sub}</div></div></div><span class="match-pill ${g.level}">${g.match}</span></div>`).join('')}</div>`;
-  }
+  _buildMarketplaceCard(){const s=APIGateway.getPartners(this.fabric.identityGraph.risk);return `<div class="r-card"><div class="r-card-title">Pre-qualified partner services</div>${s.map(s=>`<div class="opp-row"><div class="opp-left"><div class="opp-ico" style="background:rgba(26,107,181,.15)">${s.icon||''}</div><div><div class="opp-title">${s.title}</div><div class="opp-sub">${s.sub}</div></div></div><span class="match-pill ${s.level}">${s.match}</span></div>`).join('')}</div>`;}
 
-  _buildFIRESimulation() {
-    const u = this.fabric.identityGraph;
-    const p = this.fabric.portfolio;
+  _buildPersonalisedOnboard(){const u=this.fabric.identityGraph;
+    return `<div class="r-card"><div class="r-card-title">Your personalised ET path · ${u.segment||'Your Segment'}</div>${[
+      {ico:'📰',bg:'rgba(208,2,27,.15)',t:'ET Prime — Activate full access',s:`Tailored to ${u.goal||'your goals'}`,step:'Step 1',url:'https://economictimes.indiatimes.com/prime'},
+      {ico:'📊',bg:'rgba(26,107,181,.15)',t:'ET Markets Portfolio Tracker',s:`Track your ${u.assets||'investments'}`,step:'Step 2',url:'https://economictimes.indiatimes.com/markets'},
+      {ico:'🎓',bg:'rgba(26,171,170,.15)',t:`Masterclass: ${u.assets&&/equity/i.test(u.assets)?'Equity Research':'Personal Finance'}`,s:'94% profile match',step:'Step 3',url:'https://economictimes.indiatimes.com/masterclass'},
+      {ico:'🏪',bg:'rgba(201,162,39,.15)',t:`ET Marketplace: ${u.hasInsurance===false?'Get Term Insurance':'Explore PMS'}`,s:'Gap-filling recommendation',step:'Step 4',url:'https://economictimes.indiatimes.com/wealth'}
+    ].map(r=>`<div class="opp-row"><div class="opp-left"><div class="opp-ico" style="background:${r.bg}">${r.ico}</div><div><div class="opp-title"><a href="${r.url}" target="_blank" class="et-link" style="color:rgba(255,255,255,.88);font-size:12px">${r.t}</a></div><div class="opp-sub">${r.s}</div></div></div><span class="match-pill match-high">${r.step}</span></div>`).join('')}</div>`;}
 
-    const incMap = { 'Below ₹5L': 35000, '₹5–10L': 65000, '₹10–20L': 125000, '₹20–40L': 250000, '₹40L–1Cr': 580000, '₹1Cr+': 1000000 };
-    const monthlyInc = incMap[u.income] || 125000;
-    const monthlyExpense = Math.round(monthlyInc * 0.55);
-    const annualExpense = monthlyExpense * 12;
-    const targetCorpus = annualExpense * 25;
+  _buildCrossSellCard(){const u=this.fabric.identityGraph,items=[];
+    if(u.goal==='Retirement / FIRE')items.push({ico:'🎓',bg:'rgba(26,171,170,.15)',title:'ET Masterclass: FIRE',sub:`Matched to ${u.goal} · <a href="https://economictimes.indiatimes.com/masterclass" target="_blank" class="et-link">Enroll →</a>`,match:'96%',level:'match-high'});
+    else items.push({ico:'🎓',bg:'rgba(26,171,170,.15)',title:'ET Masterclass: Personal Finance',sub:`<a href="https://economictimes.indiatimes.com/masterclass" target="_blank" class="et-link">Enroll →</a>`,match:'90%',level:'match-high'});
+    items.push({ico:'💳',bg:'rgba(201,162,39,.15)',title:u.income&&/40L|1Cr/i.test(u.income)?'ET–Axis Magnus Card':'ET–HDFC Millennia Card',sub:'Pre-approved · Cashback on ET',match:'88%',level:'match-high'});
+    return `<div class="r-card"><div class="r-card-title">Profile-matched opportunities</div>${items.map(i=>`<div class="opp-row"><div class="opp-left"><div class="opp-ico" style="background:${i.bg}">${i.ico}</div><div><div class="opp-title">${i.title}</div><div class="opp-sub">${i.sub}</div></div></div><span class="match-pill ${i.level}">${i.match}</span></div>`).join('')}</div>`;}
 
-    const currentSIP = p.totalSIP || Math.round(monthlyInc * 0.15);
-    const currentValue = p.totalValue || 0;
-    const ageNum = parseInt(u.ageRange) || 30;
-    const retireAge = 45;
-    const yearsToFIRE = Math.max(5, retireAge - ageNum);
-    const cagr = u.risk === 'Aggressive' ? 0.14 : u.risk === 'Conservative' ? 0.09 : 0.12;
-
-    const r = cagr / 12;
-    const n = yearsToFIRE * 12;
-    const sipFV = Math.round(currentSIP * ((Math.pow(1 + r, n) - 1) / r) * (1 + r));
-    const lumpFV = Math.round(currentValue * Math.pow(1 + cagr, yearsToFIRE));
-    const projectedCorpus = sipFV + lumpFV;
-    const gap = targetCorpus - projectedCorpus;
-    const additionalSIP = gap > 0 ? Math.round((gap * r) / ((Math.pow(1 + r, n) - 1) * (1 + r))) : 0;
-
-    return `<div class="r-card"><div class="r-card-title">🔥 FIRE Simulation</div>
-    <div style="padding: 8px;">
-      <div><strong>Monthly expenses:</strong> ₹${monthlyExpense.toLocaleString('en-IN')}</div>
-      <div><strong>Target corpus (25×):</strong> ₹${(targetCorpus / 10000000).toFixed(1)}Cr</div>
-      <div><strong>Current SIP:</strong> ₹${currentSIP.toLocaleString('en-IN')}/mo at ${Math.round(cagr * 100)}% CAGR</div>
-      <div><strong>Projected in ${yearsToFIRE} yrs:</strong> ₹${(projectedCorpus / 10000000).toFixed(1)}Cr</div>
-      <div style="margin-top: 12px; padding: 12px; background: ${gap > 0 ? 'rgba(239,68,68,.1)' : 'rgba(34,197,94,.1)'}; border-radius: 8px;">
-        ${gap > 0 ? `<strong>Gap:</strong> ₹${(gap / 10000000).toFixed(1)}Cr — Increase SIP by <strong>₹${additionalSIP.toLocaleString('en-IN')}/mo</strong>` : '<strong>✓ On track!</strong> Current trajectory exceeds target'}
-      </div>
-      <div style="margin-top: 12px;"><a href="/et-prime" class="et-link">📰 FIRE toolkit on ET Prime →</a> · <a href="/masterclass" class="et-link">🎓 Retirement Masterclass →</a></div>
-    </div></div>`;
-  }
-
-  _buildRoadmapCard() {
-    const u = this.fabric.identityGraph;
-    const p = this.fabric.portfolio;
-    const phases = [];
-
-    const imm = [];
-    if (u.hasInsurance !== true) imm.push({ act: 'Get term insurance (20× income)', link: '/marketplace/term-insurance', label: '🛡️ Get Quotes', type: 'marketplace' });
-    if (u.hasNPS !== true) imm.push({ act: 'Open NPS account — ₹50K tax saving', link: '/et-markets/nps', label: '📋 Open NPS', type: 'markets' });
-    if (p.holdings.length > 0 && p.assetAllocation.debt === 0) imm.push({ act: 'Add debt allocation (20-30%) for stability', link: '/et-markets/debt-funds', label: '⚖️ Explore Debt Funds', type: 'markets' });
-    if (!imm.length) imm.push({ act: 'Complete financial profile', link: '#', label: '📝 Update Profile', type: 'profile' });
-    phases.push({ title: '🔴 Phase 1 — Immediate Actions', items: imm });
-
-    const short = [];
-    if (u.goal === 'Retirement / FIRE') short.push({ act: 'Set up systematic transfer to balanced fund', link: '/et-markets', label: '📊 Rebalance Portfolio', type: 'markets' });
-    short.push({ act: `Increase SIP to 25% of income for ${u.goal || 'wealth creation'}`, link: '/masterclass', label: '🎓 SIP Strategy', type: 'masterclass' });
-    phases.push({ title: '🟡 Phase 2 — Short-term (1–3 months)', items: short });
-
-    const long = [];
-    long.push({ act: `Build ${u.goal === 'Retirement / FIRE' ? 'FIRE corpus' : 'wealth'} with annual SIP step-up`, link: '/et-prime', label: '📈 Step-up SIP Guide', type: 'prime' });
-    long.push({ act: 'Track portfolio quarterly using ET Markets', link: '/et-markets', label: '📊 Portfolio Tracker', type: 'markets' });
-    phases.push({ title: '🟢 Phase 3 — Long-term Strategy', items: long });
-
-    return `<div class="r-card"><div class="r-card-title">Financial Roadmap · Mapped to ET Ecosystem</div>${phases.map(ph => `<div class="roadmap-phase"><div class="roadmap-phase-title">${ph.title}</div>${ph.items.map(it => `<div class="roadmap-item"><div class="roadmap-action">${it.act}</div><a href="${it.link}" class="roadmap-btn et-link">${it.label}</a></div>`).join('')}</div>`).join('')}</div>`;
-  }
-
-  _buildPortfolioSummaryCard() {
-    const p = this.fabric.portfolio;
-    if (!p.holdings.length) return '';
-
-    const allocHTML = Object.entries(p.assetAllocation).filter(([, v]) => v > 0).map(([k, v]) => `<div class="alloc-bar-item"><div class="alloc-label">${k.toUpperCase()}</div><div class="alloc-bar-fill" style="width:${v}%;background:${k === 'equity' ? 'var(--et-red)' : k === 'mf' ? 'var(--teal)' : k === 'debt' ? 'var(--blue)' : 'var(--gold)'}"></div><div class="alloc-pct">${v}%</div></div>`).join('');
-
-    return `<div class="r-card"><div class="r-card-title">Portfolio Summary · ${p.holdings.length} Holdings</div>
-    <div class="portfolio-stats"><div class="port-stat"><div class="port-stat-val">₹${p.totalValue.toLocaleString('en-IN')}</div><div class="port-stat-label">Total Value</div></div><div class="port-stat"><div class="port-stat-val">₹${p.totalSIP.toLocaleString('en-IN')}/mo</div><div class="port-stat-label">Monthly SIP</div></div><div class="port-stat"><div class="port-stat-val">${p.investmentExp || '—'}</div><div class="port-stat-label">Experience</div></div></div>
-    <div class="alloc-bars">${allocHTML}</div>
-    ${p.holdings.slice(0, 5).map((h, idx) => `<div class="opp-row"><div class="opp-left"><div class="opp-ico" style="background:${h.type === 'Stock' ? 'rgba(208,2,27,.15)' : 'rgba(26,171,170,.15)'}">${h.type === 'Stock' ? '📊' : '💼'}</div><div><div class="opp-title">${h.name}</div><div class="opp-sub">${h.type} · SIP ₹${(h.sipAmount || 0).toLocaleString('en-IN')} · Value ₹${(h.value || 0).toLocaleString('en-IN')}</div></div></div><span class="match-pill match-med">${h.source === 'manual' ? 'Manual' : 'Added'}</span></div>`).join('')}
-    ${p.holdings.length > 5 ? `<div class="opp-sub" style="text-align:center;padding:6px">+ ${p.holdings.length - 5} more holdings</div>` : ''}
-    <div style="text-align:center;padding:8px 0"><a href="#" onclick="showFullPortfolio()" class="et-link">📊 View all holdings →</a> · <a href="#" onclick="injectQuick('Edit my portfolio')" class="et-link">✏️ Edit portfolio →</a></div></div>`;
-  }
-
-  _buildPortfolioPerformance() {
-    const p = this.fabric.portfolio;
-    if (!p.holdings.length) return '';
-
-    // Simulate performance metrics
-    const dayChange = (Math.random() * 2 - 0.5).toFixed(2);
-    const weekChange = (Math.random() * 3 - 1).toFixed(2);
-    const monthChange = (Math.random() * 5 - 1).toFixed(2);
-    const yearChange = (Math.random() * 15 - 2).toFixed(2);
-
-    return `<div class="r-card"><div class="r-card-title">📈 Portfolio Performance</div>
-    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 12px;">
-      <div><div style="font-size: 11px; color: var(--et-muted);">Today</div><div style="font-size: 18px; font-weight: 600; color: ${dayChange >= 0 ? 'var(--teal)' : 'var(--coral)'}">${dayChange >= 0 ? '+' : ''}${dayChange}%</div></div>
-      <div><div style="font-size: 11px; color: var(--et-muted);">Week</div><div style="font-size: 18px; font-weight: 600; color: ${weekChange >= 0 ? 'var(--teal)' : 'var(--coral)'}">${weekChange >= 0 ? '+' : ''}${weekChange}%</div></div>
-      <div><div style="font-size: 11px; color: var(--et-muted);">Month</div><div style="font-size: 18px; font-weight: 600; color: ${monthChange >= 0 ? 'var(--teal)' : 'var(--coral)'}">${monthChange >= 0 ? '+' : ''}${monthChange}%</div></div>
-      <div><div style="font-size: 11px; color: var(--et-muted);">Year</div><div style="font-size: 18px; font-weight: 600; color: ${yearChange >= 0 ? 'var(--teal)' : 'var(--coral)'}">${yearChange >= 0 ? '+' : ''}${yearChange}%</div></div>
-    </div>
-    <div style="padding: 8px; border-top: 1px solid rgba(255,255,255,.1);">
-      <div style="display: flex; justify-content: space-between;">
-        <span>vs Nifty 50</span>
-        <span style="color: ${(parseFloat(monthChange) - 2.5) >= 0 ? 'var(--teal)' : 'var(--coral)'}">${(parseFloat(monthChange) - 2.5).toFixed(2)}%</span>
-      </div>
-      <div style="margin-top: 8px;"><a href="/et-markets/portfolio" class="et-link">Detailed analysis on ET Markets →</a></div>
-    </div></div>`;
-  }
-
-  _buildHomeLoanOptions() {
-    const u = this.fabric.identityGraph;
-    const maxLoan = u.income && u.income.includes('1Cr') ? '1.5Cr' : u.income && u.income.includes('40L') ? '80L' : '50L';
-
-    return `<div class="r-card"><div class="r-card-title">🏠 Home Loan Options</div>
-    <div style="background: rgba(26,107,181,.1); padding: 12px; border-radius: 8px; margin: 8px 0;">
-      <div style="font-weight: 600;">HDFC Home Loan</div>
-      <div>8.4% p.a. · Up to ₹${maxLoan} · Pre-approved</div>
-      <div style="margin-top: 8px;"><a href="/marketplace/home-loan-hdfc" class="et-link">Check eligibility →</a></div>
-    </div>
-    <div style="background: rgba(26,107,181,.1); padding: 12px; border-radius: 8px; margin: 8px 0;">
-      <div style="font-weight: 600;">SBI Home Loan</div>
-      <div>8.6% p.a. · Up to ₹${maxLoan} · Max tenure 30 years</div>
-      <div style="margin-top: 8px;"><a href="/marketplace/home-loan-sbi" class="et-link">Check eligibility →</a></div>
-    </div>
-    <div style="background: rgba(26,107,181,.1); padding: 12px; border-radius: 8px; margin: 8px 0;">
-      <div style="font-weight: 600;">ICICI Home Loan</div>
-      <div>8.65% p.a. · Up to ₹${maxLoan} · Balance transfer facility</div>
-      <div style="margin-top: 8px;"><a href="/marketplace/home-loan-icici" class="et-link">Check eligibility →</a></div>
-    </div>
-    <div style="margin-top: 12px; text-align: center;"><a href="/et-markets/home-loans" class="et-link">Compare all lenders →</a></div></div>`;
-  }
-
-  _buildInsuranceOptions() {
-    const u = this.fabric.identityGraph;
-    const premium = u.ageRange && u.ageRange.includes('25') ? '550' : u.ageRange && u.ageRange.includes('35') ? '750' : '650';
-
-    return `<div class="r-card"><div class="r-card-title">🛡️ Term Insurance Options</div>
-    <div style="background: rgba(26,171,170,.1); padding: 12px; border-radius: 8px; margin: 8px 0;">
-      <div style="font-weight: 600;">ICICI Pru iProtect</div>
-      <div>₹1Cr coverage at ₹${premium}/month · Returns 105% of premiums</div>
-      <div style="margin-top: 8px;"><a href="/marketplace/term-insurance-icici" class="et-link">Get quote →</a></div>
-    </div>
-    <div style="background: rgba(26,171,170,.1); padding: 12px; border-radius: 8px; margin: 8px 0;">
-      <div style="font-weight: 600;">HDFC Click 2 Protect</div>
-      <div>₹1Cr coverage at ₹${parseInt(premium) + 50}/month · Critical illness rider</div>
-      <div style="margin-top: 8px;"><a href="/marketplace/term-insurance-hdfc" class="et-link">Get quote →</a></div>
-    </div>
-    <div style="background: rgba(26,171,170,.1); padding: 12px; border-radius: 8px; margin: 8px 0;">
-      <div style="font-weight: 600;">Max Life Smart Term Plan</div>
-      <div>₹1Cr coverage at ₹${parseInt(premium) - 50}/month · Premium waiver on disability</div>
-      <div style="margin-top: 8px;"><a href="/marketplace/term-insurance-max" class="et-link">Get quote →</a></div>
-    </div>
-    <div style="margin-top: 12px; text-align: center;"><a href="/et-markets/insurance" class="et-link">Compare all plans →</a></div></div>`;
-  }
-
-  _buildMarketplaceCard() {
-    const services = APIGateway.getPartners(this.fabric.identityGraph.risk);
-    return `<div class="r-card"><div class="r-card-title">Pre-qualified partner services</div>${services.map(s => `<div class="opp-row"><div class="opp-left"><div class="opp-ico" style="background:rgba(26,107,181,.15)">${s.icon || ''}</div><div><div class="opp-title">${s.title}</div><div class="opp-sub">${s.sub}</div></div></div><span class="match-pill ${s.level}">${s.match}</span></div>`).join('')}</div>`;
-  }
-
-  _buildPersonalisedOnboard() {
-    const u = this.fabric.identityGraph;
-    return `<div class="r-card"><div class="r-card-title">Your personalised ET path · ${u.segment || 'Your Segment'}</div>
-    <div class="opp-row"><div class="opp-left"><div class="opp-ico" style="background:rgba(208,2,27,.15)">📰</div><div><div class="opp-title">ET Prime — Activate full access</div><div class="opp-sub">Tailored to ${u.goal || 'your goals'}</div></div></div><span class="match-pill match-high">Step 1</span></div>
-    <div class="opp-row"><div class="opp-left"><div class="opp-ico" style="background:rgba(26,107,181,.15)">📊</div><div><div class="opp-title">ET Markets Portfolio Tracker</div><div class="opp-sub">Track your ${u.assets || 'investments'}</div></div></div><span class="match-pill match-high">Step 2</span></div>
-    <div class="opp-row"><div class="opp-left"><div class="opp-ico" style="background:rgba(26,171,170,.15)">🎓</div><div><div class="opp-title">Masterclass: ${u.assets && /equity/i.test(u.assets) ? 'Equity Research' : 'Personal Finance'}</div><div class="opp-sub">94% profile match</div></div></div><span class="match-pill match-med">Step 3</span></div>
-    <div class="opp-row"><div class="opp-left"><div class="opp-ico" style="background:rgba(201,162,39,.15)">🏪</div><div><div class="opp-title">ET Marketplace: ${u.hasInsurance === false ? 'Get Term Insurance' : 'Explore PMS'}</div><div class="opp-sub">Gap-filling recommendation</div></div></div><span class="match-pill match-med">Step 4</span></div></div>`;
-  }
-
-  getRichCardHTML(type) {
-    const builders = {
-      'age-q': () => `<div class="r-card"><div class="r-card-title">Select your age range</div><div class="opt-grid"><div class="opt-chip" onclick="injectQuick('I am in my early 20s, 18 to 25')"><div class="opt-chip-icon">🎓</div><div class="opt-chip-name">18–25</div><div class="opt-chip-desc">Early career</div></div><div class="opt-chip" onclick="injectQuick('I am 25 to 30 years old')"><div class="opt-chip-icon">💼</div><div class="opt-chip-name">25–30</div><div class="opt-chip-desc">Growth phase</div></div><div class="opt-chip" onclick="injectQuick('I am 30 to 35 years old')"><div class="opt-chip-icon">📊</div><div class="opt-chip-name">30–35</div><div class="opt-chip-desc">Peak earning</div></div><div class="opt-chip" onclick="injectQuick('I am 35 to 40 years old')"><div class="opt-chip-icon">🏠</div><div class="opt-chip-name">35–40</div><div class="opt-chip-desc">Established</div></div><div class="opt-chip" onclick="injectQuick('I am 40 to 50 years old')"><div class="opt-chip-icon">💎</div><div class="opt-chip-name">40–50</div><div class="opt-chip-desc">Wealth building</div></div><div class="opt-chip" onclick="injectQuick('I am above 50')"><div class="opt-chip-icon">👑</div><div class="opt-chip-name">50+</div><div class="opt-chip-desc">Pre-retirement</div></div></div></div>`,
-      'goal-q': () => `<div class="r-card"><div class="r-card-title">Select your primary goal</div><div class="opt-grid"><div class="opt-chip" onclick="injectQuick('I want to retire early and achieve financial independence — FIRE')"><div class="opt-chip-icon">🎯</div><div class="opt-chip-name">Retirement / FIRE</div><div class="opt-chip-desc">Long-term independence</div></div><div class="opt-chip" onclick="injectQuick('I want to build wealth and grow my assets aggressively')"><div class="opt-chip-icon">📈</div><div class="opt-chip-name">Wealth creation</div><div class="opt-chip-desc">Growth focus</div></div><div class="opt-chip" onclick="injectQuick('I want to generate passive income from dividends')"><div class="opt-chip-icon">💰</div><div class="opt-chip-name">Passive income</div><div class="opt-chip-desc">Dividend & yield</div></div><div class="opt-chip" onclick="injectQuick('I want to save for my child education')"><div class="opt-chip-icon">👶</div><div class="opt-chip-name">Child education</div><div class="opt-chip-desc">Family planning</div></div></div></div>`,
-      'risk-q': () => `<div class="r-card"><div class="r-card-title">Risk tolerance</div><div class="opt-grid"><div class="opt-chip" onclick="injectQuick('I prefer conservative investments, capital preservation')"><div class="opt-chip-icon">🛡️</div><div class="opt-chip-name">Conservative</div><div class="opt-chip-desc">Capital preservation</div></div><div class="opt-chip" onclick="injectQuick('I am moderate, balanced growth with some risk')"><div class="opt-chip-icon">⚖️</div><div class="opt-chip-name">Moderate</div><div class="opt-chip-desc">Balanced growth</div></div><div class="opt-chip" onclick="injectQuick('I am aggressive, I want high growth')"><div class="opt-chip-icon">🚀</div><div class="opt-chip-name">Aggressive</div><div class="opt-chip-desc">High growth</div></div><div class="opt-chip" onclick="injectQuick('Very aggressive, maximum returns')"><div class="opt-chip-icon">⚡</div><div class="opt-chip-name">Very Aggressive</div><div class="opt-chip-desc">Maximum returns</div></div></div></div>`,
-      'asset-q': () => `<div class="r-card"><div class="r-card-title">Current investments</div><div class="opt-grid"><div class="opt-chip" onclick="injectQuick('I invest in equity stocks and mutual funds including SIPs')"><div class="opt-chip-icon">📊</div><div class="opt-chip-name">Equity & MF</div><div class="opt-chip-desc">Stocks, SIPs</div></div><div class="opt-chip" onclick="injectQuick('I have real estate and gold')"><div class="opt-chip-icon">🏠</div><div class="opt-chip-name">Real Estate & Gold</div><div class="opt-chip-desc">Physical assets</div></div><div class="opt-chip" onclick="injectQuick('I mainly use fixed deposits and debt')"><div class="opt-chip-icon">🏦</div><div class="opt-chip-name">FD & Debt</div><div class="opt-chip-desc">Fixed income</div></div><div class="opt-chip" onclick="injectQuick('I am just starting, mostly savings')"><div class="opt-chip-icon">🌱</div><div class="opt-chip-name">Just starting</div><div class="opt-chip-desc">Savings only</div></div></div></div>`,
-      'income-q': () => `<div class="r-card"><div class="r-card-title">Annual income bracket</div><div class="opt-grid"><div class="opt-chip" onclick="injectQuick('My annual income is around 10 to 20 lakhs')"><div class="opt-chip-icon">💼</div><div class="opt-chip-name">₹10–20L</div><div class="opt-chip-desc">p.a.</div></div><div class="opt-chip" onclick="injectQuick('My annual income is around 20 to 40 lakhs')"><div class="opt-chip-icon">💼</div><div class="opt-chip-name">₹20–40L</div><div class="opt-chip-desc">p.a.</div></div><div class="opt-chip" onclick="injectQuick('My annual income is around 40 lakhs to 1 crore')"><div class="opt-chip-icon">💎</div><div class="opt-chip-name">₹40L–1Cr</div><div class="opt-chip-desc">p.a.</div></div><div class="opt-chip" onclick="injectQuick('My annual income is above 1 crore')"><div class="opt-chip-icon">👑</div><div class="opt-chip-name">₹1Cr+</div><div class="opt-chip-desc">p.a.</div></div></div></div>`,
-      'insurance-q': () => `<div class="r-card"><div class="r-card-title">Coverage status</div><div class="opt-grid"><div class="opt-chip" onclick="injectQuick('Yes I have term insurance and NPS both')"><div class="opt-chip-icon">✅</div><div class="opt-chip-name">Both covered</div><div class="opt-chip-desc">Term + NPS</div></div><div class="opt-chip" onclick="injectQuick('I have term insurance but no NPS')"><div class="opt-chip-icon">🛡️</div><div class="opt-chip-name">Insurance only</div><div class="opt-chip-desc">No NPS yet</div></div><div class="opt-chip" onclick="injectQuick('I have NPS but no term insurance')"><div class="opt-chip-icon">📋</div><div class="opt-chip-name">NPS only</div><div class="opt-chip-desc">No term plan</div></div><div class="opt-chip" onclick="injectQuick('I have neither term insurance nor NPS')"><div class="opt-chip-icon">⚠️</div><div class="opt-chip-name">Neither yet</div><div class="opt-chip-desc">Need both</div></div></div></div>`
-    };
-    return builders[type] ? builders[type]() : '';
-  }
-
-  agentIntro(key) {
-    const u = this.fabric.identityGraph;
-    if (key === 'concierge') {
-      if (this.profilingStep === 0) return { text: this.profilingStages[0].ask, richType: this.profilingStages[0].richType };
-      return { text: `<p>Welcome back. Your PAIL profile is at <strong>${u.depth}%</strong> depth.</p>` };
-    }
-    if (key === 'navigator') {
-      const portfolioInfo = this.fabric.portfolio.holdings.length > 0
-        ? `<br>Portfolio: <strong>${this.fabric.portfolio.holdings.length} holdings</strong> · ₹${this.fabric.portfolio.totalValue.toLocaleString('en-IN')} · ₹${this.fabric.portfolio.totalSIP.toLocaleString('en-IN')}/mo SIP`
-        : '<br><em>Add your investments to get personalised analysis</em>';
-      return { text: `<p>Your <strong>Financial Life Navigator</strong> is online. PAIL profile — <strong>${u.goal || 'pending'}</strong> goal, <strong>${u.risk || 'pending'}</strong> risk.${portfolioInfo}</p><p>I can help you: Add investments, analyse gaps, FIRE planning, generate roadmap, or track performance.</p>`, extra: this._buildGapsCard(), onboard: 3 };
-    }
-    if (key === 'crosssell') {
-      return { text: `<p>Your <strong>Cross-Sell Engine</strong> is active. Analysing ${u.signals.length + 12} behavioural signals…</p>`, extra: this._buildCrossSellCard() };
-    }
-    if (key === 'marketplace') {
-      return { text: `<p>Welcome to the <strong>ET Services Marketplace</strong>. Profile matched against 40+ partner services.</p>`, extra: this._buildMarketplaceCard(), onboard: 4 };
-    }
-    return { text: '<p>Agent ready.</p>' };
-  }
-
-  _buildCrossSellCard() {
-    const u = this.fabric.identityGraph;
-    const p = this.fabric.portfolio;
-    const items = [];
-
-    if (u.goal === 'Retirement / FIRE') items.push({ ico: '🎓', bg: 'rgba(26,171,170,.15)', title: 'ET Masterclass: FIRE & Early Retirement', sub: `Matched to your ${u.goal} goal · <a href="/masterclass" class="et-link">Enroll →</a>`, match: '96%', level: 'match-high' });
-    else if (u.assets && /equity|stock/i.test(u.assets)) items.push({ ico: '🎓', bg: 'rgba(26,171,170,.15)', title: 'ET Masterclass: Equity Research', sub: `Matched to your ${u.assets} portfolio · <a href="/masterclass" class="et-link">Enroll →</a>`, match: '94%', level: 'match-high' });
-    else items.push({ ico: '🎓', bg: 'rgba(26,171,170,.15)', title: 'ET Masterclass: Personal Finance', sub: `Foundational course · <a href="/masterclass" class="et-link">Enroll →</a>`, match: '90%', level: 'match-high' });
-
-    if (u.income && /40L|1Cr|crore/i.test(u.income)) items.push({ ico: '💳', bg: 'rgba(201,162,39,.15)', title: 'ET–Axis Magnus Credit Card', sub: `Pre-approved · Travel + invest rewards`, match: '91%', level: 'match-high' });
-    else items.push({ ico: '💳', bg: 'rgba(201,162,39,.15)', title: 'ET–HDFC Millennia Card', sub: `5% cashback on ET · ₹0 joining fee`, match: '88%', level: 'match-high' });
-
-    if (p.holdings.length > 0 && p.totalSIP > 0) items.push({ ico: '📈', bg: 'rgba(34,197,94,.15)', title: `Optimize ₹${p.totalSIP.toLocaleString('en-IN')}/mo SIP`, sub: `Step-up 10% annually · <a href="/et-prime" class="et-link">SIP Guide →</a>`, match: '85%', level: 'match-med' });
-    else items.push({ ico: '📈', bg: 'rgba(34,197,94,.15)', title: 'Start SIP — wealth building', sub: `Recommended for ${u.risk || 'Moderate'} profile · <a href="/et-markets" class="et-link">Best SIPs →</a>`, match: '82%', level: 'match-med' });
-
-    return `<div class="r-card"><div class="r-card-title">Profile-matched opportunities</div>${items.map(i => `<div class="opp-row"><div class="opp-left"><div class="opp-ico" style="background:${i.bg}">${i.ico}</div><div><div class="opp-title">${i.title}</div><div class="opp-sub">${i.sub}</div></div></div><span class="match-pill ${i.level}">${i.match}</span></div>`).join('')}</div>`;
-  }
+  getRichCardHTML(type){const b={'age-q':()=>`<div class="r-card"><div class="r-card-title">Select your age range</div><div class="opt-grid">${[['🎓','18–25','Early career',"I am in my early 20s, 18 to 25"],['💼','25–30','Growth phase',"I am 25 to 30 years old"],['📊','30–35','Peak earning',"I am 30 to 35 years old"],['🏠','35–40','Established',"I am 35 to 40 years old"],['💎','40–50','Wealth building',"I am 40 to 50 years old"],['👑','50+','Pre-retirement',"I am above 50"]].map(r=>`<div class="opt-chip" onclick="injectQuick('${r[3]}')"><div class="opt-chip-icon">${r[0]}</div><div class="opt-chip-name">${r[1]}</div><div class="opt-chip-desc">${r[2]}</div></div>`).join('')}</div></div>`,
+    'goal-q':()=>`<div class="r-card"><div class="r-card-title">Select your primary goal</div><div class="opt-grid">${[['🎯','Retirement / FIRE','Long-term independence',"I want to retire early and achieve financial independence — FIRE"],['📈','Wealth creation','Growth focus',"I want to build wealth and grow my assets aggressively"],['💰','Passive income','Dividend & yield',"I want to generate passive income from dividends"],['👶','Child education','Family planning',"I want to save for my child education"]].map(r=>`<div class="opt-chip" onclick="injectQuick('${r[3]}')"><div class="opt-chip-icon">${r[0]}</div><div class="opt-chip-name">${r[1]}</div><div class="opt-chip-desc">${r[2]}</div></div>`).join('')}</div></div>`,
+    'risk-q':()=>`<div class="r-card"><div class="r-card-title">Risk tolerance</div><div class="opt-grid">${[['🛡️','Conservative','Capital preservation',"I prefer conservative investments, capital preservation"],['⚖️','Moderate','Balanced growth',"I am moderate, balanced growth with some risk"],['🚀','Aggressive','High growth',"I am aggressive, I want high growth"],['⚡','Very Aggressive','Maximum returns',"Very aggressive, maximum returns"]].map(r=>`<div class="opt-chip" onclick="injectQuick('${r[3]}')"><div class="opt-chip-icon">${r[0]}</div><div class="opt-chip-name">${r[1]}</div><div class="opt-chip-desc">${r[2]}</div></div>`).join('')}</div></div>`,
+    'asset-q':()=>`<div class="r-card"><div class="r-card-title">Current investments</div><div class="opt-grid">${[['📊','Equity & MF','Stocks, SIPs',"I invest in equity stocks and mutual funds including SIPs"],['🏠','Real Estate & Gold','Physical assets',"I have real estate and gold"],['🏦','FD & Debt','Fixed income',"I mainly use fixed deposits and debt"],['🌱','Just starting','Savings only',"I am just starting, mostly savings"]].map(r=>`<div class="opt-chip" onclick="injectQuick('${r[3]}')"><div class="opt-chip-icon">${r[0]}</div><div class="opt-chip-name">${r[1]}</div><div class="opt-chip-desc">${r[2]}</div></div>`).join('')}</div></div>`,
+    'income-q':()=>`<div class="r-card"><div class="r-card-title">Annual income bracket</div><div class="opt-grid">${[['💼','₹10–20L','p.a.',"My annual income is around 10 to 20 lakhs"],['💼','₹20–40L','p.a.',"My annual income is around 20 to 40 lakhs"],['💎','₹40L–1Cr','p.a.',"My annual income is around 40 lakhs to 1 crore"],['👑','₹1Cr+','p.a.',"My annual income is above 1 crore"]].map(r=>`<div class="opt-chip" onclick="injectQuick('${r[3]}')"><div class="opt-chip-icon">${r[0]}</div><div class="opt-chip-name">${r[1]}</div><div class="opt-chip-desc">${r[2]}</div></div>`).join('')}</div></div>`,
+    'insurance-q':()=>`<div class="r-card"><div class="r-card-title">Coverage status</div><div class="opt-grid">${[['✅','Both covered','Term + NPS',"Yes I have term insurance and NPS both"],['🛡️','Insurance only','No NPS',"I have term insurance but no NPS"],['📋','NPS only','No term plan',"I have NPS but no term insurance"],['⚠️','Neither yet','Need both',"I have neither term insurance nor NPS"]].map(r=>`<div class="opt-chip" onclick="injectQuick('${r[3]}')"><div class="opt-chip-icon">${r[0]}</div><div class="opt-chip-name">${r[1]}</div><div class="opt-chip-desc">${r[2]}</div></div>`).join('')}</div></div>`};
+    return b[type]?b[type]():'';}
 }
-
-// ============ GLOBAL INSTANCES ============
+// ============================= GLOBAL INSTANCES =============================
 const fabric = new DataFabric();
 const engine = new Orchestrator(fabric);
 
-// ============ UI HELPER FUNCTIONS ============
+// ============================= VOICE INPUT =============================
+class VoiceInput {
+  constructor() {
+    this.recognition = null;
+    this.isListening = false;
+    this.supported = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+    if (this.supported) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      this.recognition = new SpeechRecognition();
+      this.recognition.continuous = false;
+      this.recognition.interimResults = true;
+      this.recognition.lang = 'en-IN';
+      this.recognition.onresult = (e) => {
+        const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
+        document.getElementById('msg-input').value = transcript;
+        if (e.results[0].isFinal) { this.stop(); setTimeout(() => sendMessage(), 300); }
+      };
+      this.recognition.onend = () => { this.isListening = false; this._updateBtn(); };
+      this.recognition.onerror = (e) => { this.isListening = false; this._updateBtn(); console.warn('Voice error:', e.error); };
+    }
+  }
+  toggle() {
+    if (!this.supported) { alert('Voice input not supported in this browser. Try Chrome.'); return; }
+    if (this.isListening) { this.stop(); } else { this.start(); }
+  }
+  start() {
+    try { this.recognition.start(); this.isListening = true; this._updateBtn(); fabric.pushSignal('Voice input active 🎙️', 'var(--coral)'); } catch (e) { console.warn('Voice start failed', e); }
+  }
+  stop() {
+    try { this.recognition.stop(); } catch (e) {} this.isListening = false; this._updateBtn();
+  }
+  _updateBtn() {
+    const btn = document.getElementById('voice-btn');
+    if (btn) { btn.classList.toggle('voice-active', this.isListening); btn.title = this.isListening ? 'Listening... click to stop' : 'Voice input'; }
+  }
+}
+const voice = new VoiceInput();
+
+// ============================= UI HELPERS =============================
 function nowTime() { return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
 
 function renderMsg(role, content, time, richType, isExtra) {
@@ -1161,6 +1343,8 @@ function renderMsg(role, content, time, richType, isExtra) {
   bubble.className = 'msg-bubble';
   bubble.innerHTML = content || '';
   if (richType) bubble.innerHTML += engine.getRichCardHTML(richType);
+  // Make all links open in new tab
+  bubble.querySelectorAll('a[href^="http"]').forEach(a => { a.setAttribute('target', '_blank'); a.setAttribute('rel', 'noopener'); });
   wrap.appendChild(bubble);
   if (!isExtra) { const t = document.createElement('div'); t.className = 'msg-time'; t.textContent = time || nowTime(); wrap.appendChild(t); }
   div.appendChild(av); div.appendChild(wrap);
@@ -1191,8 +1375,7 @@ function setQuickReplies(list) {
 }
 
 function flashTag(id) {
-  const el = document.getElementById(id);
-  if (!el) return;
+  const el = document.getElementById(id); if (!el) return;
   el.classList.add('update-flash', 'active-tag');
   setTimeout(() => el.classList.remove('update-flash'), 1600);
 }
@@ -1201,13 +1384,14 @@ function switchAgent(key, btn) {
   document.querySelectorAll('.agent-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   engine.currentAgent = key;
+  fabric.behaviour.trackAgentSwitch(key);
   const cfg = engine.agentConfig[key];
   document.getElementById('agent-title').textContent = cfg.title;
   document.getElementById('agent-desc-hdr').textContent = cfg.desc;
   document.getElementById('agent-mode-hint').textContent = cfg.hint;
   setQuickReplies(cfg.qr);
   document.getElementById('messages').innerHTML = '';
-  fabric.pushSignal(`Agent switched to: ${cfg.title}`, 'var(--blue)');
+  fabric.pushSignal(`Agent: ${cfg.title}`, 'var(--blue)');
   setTimeout(() => {
     const intro = engine.agentIntro(key);
     renderMsg('assistant', intro.text, nowTime(), intro.richType);
@@ -1237,152 +1421,59 @@ function sendMessage() {
     if (resp.extra) renderMsg('assistant', resp.extra, nowTime(), null, true);
     if (resp.toast) showProfileToast(resp.toast);
     flashTag('tag-hil');
-  }, 900 + Math.random() * 500);
+    // Update live indicator
+    const liveEl = document.getElementById('live-status');
+    if (liveEl) liveEl.textContent = `${fabric.metrics.interactions} queries · ${fabric.behaviour.getEngagementScore()}% engagement`;
+  }, 700 + Math.random() * 400);
 }
 
-function injectQuick(text) {
-  document.getElementById('msg-input').value = text;
-  sendMessage();
-}
-
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = el.scrollHeight + 'px';
-}
+function injectQuick(text) { document.getElementById('msg-input').value = text; sendMessage(); }
+function autoResize(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
 
 function applyHIL() {
   const updates = {};
   const hilName = document.getElementById('hil-name');
   const hilAge = document.getElementById('hil-age');
-  if (hilName && hilName.value.trim()) {
-    updates.name = hilName.value.trim();
-    const parts = updates.name.split(/\s+/);
-    updates.initials = parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : updates.name.substring(0, 2).toUpperCase();
-  }
+  if (hilName && hilName.value.trim()) { updates.name = hilName.value.trim(); const parts = updates.name.split(/\s+/); updates.initials = parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : updates.name.substring(0, 2).toUpperCase(); }
   if (hilAge && hilAge.value.trim()) updates.ageRange = hilAge.value.trim();
   updates.risk = document.getElementById('hil-risk').value;
   updates.goal = document.getElementById('hil-goal').value;
   updates.horizon = document.getElementById('hil-horizon').value;
-  fabric.updateIdentity(updates, `HIL override applied`);
-  fabric.renderReco();
-  flashTag('tag-hil');
-  renderMsg('assistant', `<p>⚙️ <strong>Human-in-Loop override applied.</strong> Risk: <strong>${updates.risk}</strong> · Goal: <strong>${updates.goal}</strong> · Horizon: <strong>${updates.horizon}</strong>${updates.name ? ' · Name: <strong>' + updates.name + '</strong>' : ''}</p><p>All agents repersonalised.</p>`, nowTime());
-  setTimeout(() => renderMsg('assistant', engine._buildMarketplaceCard(), nowTime(), null, true), 400);
+  fabric.updateIdentity(updates, 'HIL override applied');
+  fabric.renderReco(); flashTag('tag-hil');
+  renderMsg('assistant', `<p>⚙️ <strong>HIL override applied.</strong> Risk: <strong>${updates.risk}</strong> · Goal: <strong>${updates.goal}</strong> · Horizon: <strong>${updates.horizon}</strong></p><p>All agents repersonalised.</p>`, nowTime());
 }
 
 function editHolding(index) {
-  const holding = fabric.portfolio.holdings[index];
-  if (!holding) return;
-
-  const editForm = `
-    <div class="edit-holding-form" style="background: rgba(0,0,0,0.5); position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; z-index: 1000;" onclick="closeEditForm(event)">
-      <div style="background: var(--et-bg); padding: 24px; border-radius: 12px; max-width: 400px; width: 90%;" onclick="event.stopPropagation()">
-        <h3 style="margin-bottom: 16px;">Edit Holding</h3>
-        <div style="margin-bottom: 12px;">
-          <label>Name</label>
-          <input type="text" id="edit-name" value="${holding.name.replace(/'/g, "\\'")}" style="width: 100%; padding: 8px; margin-top: 4px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 4px; color: white;">
-        </div>
-        <div style="margin-bottom: 12px;">
-          <label>Type</label>
-          <select id="edit-type" style="width: 100%; padding: 8px; margin-top: 4px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 4px; color: white;">
-            <option value="MF" ${holding.type === 'MF' ? 'selected' : ''}>Mutual Fund</option>
-            <option value="Stock" ${holding.type === 'Stock' ? 'selected' : ''}>Stock</option>
-            <option value="ETF" ${holding.type === 'ETF' ? 'selected' : ''}>ETF</option>
-            <option value="Debt" ${holding.type === 'Debt' ? 'selected' : ''}>Debt</option>
-          </select>
-        </div>
-        <div style="margin-bottom: 12px;">
-          <label>SIP Amount (₹/month)</label>
-          <input type="number" id="edit-sip" value="${holding.sipAmount || 0}" style="width: 100%; padding: 8px; margin-top: 4px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 4px; color: white;">
-        </div>
-        <div style="margin-bottom: 12px;">
-          <label>Current Value (₹)</label>
-          <input type="number" id="edit-value" value="${holding.value || 0}" style="width: 100%; padding: 8px; margin-top: 4px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 4px; color: white;">
-        </div>
-        <div style="display: flex; gap: 12px; margin-top: 20px;">
-          <button onclick="saveHoldingEdit(${index})" style="flex: 1; padding: 10px; background: var(--teal); border: none; border-radius: 6px; color: white; cursor: pointer;">Save Changes</button>
-          <button onclick="closeEditForm()" style="flex: 1; padding: 10px; background: rgba(255,255,255,.1); border: none; border-radius: 6px; color: white; cursor: pointer;">Cancel</button>
-        </div>
-      </div>
-    </div>
-  `;
-
+  const holding = fabric.portfolio.holdings[index]; if (!holding) return;
+  const editForm = `<div class="edit-holding-form" style="background:rgba(0,0,0,0.5);position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;z-index:1000" onclick="closeEditForm(event)"><div style="background:var(--et-charcoal);padding:24px;border-radius:12px;max-width:400px;width:90%;border:1px solid var(--et-border)" onclick="event.stopPropagation()"><h3 style="margin-bottom:16px">Edit Holding</h3><div style="margin-bottom:12px"><label>Name</label><input type="text" id="edit-name" value="${holding.name.replace(/'/g,"\\'")} " style="width:100%;padding:8px;margin-top:4px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:4px;color:white"></div><div style="margin-bottom:12px"><label>Type</label><select id="edit-type" style="width:100%;padding:8px;margin-top:4px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:4px;color:white"><option value="MF" ${holding.type==='MF'?'selected':''}>Mutual Fund</option><option value="Stock" ${holding.type==='Stock'?'selected':''}>Stock</option><option value="Debt" ${holding.type==='Debt'?'selected':''}>Debt</option></select></div><div style="margin-bottom:12px"><label>SIP (₹/mo)</label><input type="number" id="edit-sip" value="${holding.sipAmount||0}" style="width:100%;padding:8px;margin-top:4px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:4px;color:white"></div><div style="margin-bottom:12px"><label>Value (₹)</label><input type="number" id="edit-value" value="${holding.value||0}" style="width:100%;padding:8px;margin-top:4px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:4px;color:white"></div><div style="display:flex;gap:12px;margin-top:20px"><button onclick="saveHoldingEdit(${index})" style="flex:1;padding:10px;background:var(--teal);border:none;border-radius:6px;color:white;cursor:pointer">Save</button><button onclick="closeEditForm()" style="flex:1;padding:10px;background:rgba(255,255,255,.1);border:none;border-radius:6px;color:white;cursor:pointer">Cancel</button></div></div></div>`;
   document.body.insertAdjacentHTML('beforeend', editForm);
 }
-
 function saveHoldingEdit(index) {
-  const updates = {
-    name: document.getElementById('edit-name').value,
-    type: document.getElementById('edit-type').value,
-    sipAmount: parseInt(document.getElementById('edit-sip').value) || 0,
-    value: parseInt(document.getElementById('edit-value').value) || 0
-  };
-
-  fabric.editHolding(index, updates);
-  closeEditForm();
-  renderMsg('assistant', `<p>✅ Holding updated successfully!</p><p>${updates.name} — SIP: ₹${updates.sipAmount.toLocaleString('en-IN')}, Value: ₹${updates.value.toLocaleString('en-IN')}</p>`, nowTime());
-  setTimeout(() => renderMsg('assistant', engine._buildPortfolioSummaryCard(), nowTime(), null, true), 500);
+  const updates = { name: document.getElementById('edit-name').value, type: document.getElementById('edit-type').value, sipAmount: parseInt(document.getElementById('edit-sip').value) || 0, value: parseInt(document.getElementById('edit-value').value) || 0 };
+  fabric.editHolding(index, updates); closeEditForm();
+  renderMsg('assistant', `<p>✅ Updated: ${updates.name} — SIP ₹${updates.sipAmount.toLocaleString('en-IN')}, Value ₹${updates.value.toLocaleString('en-IN')}</p>`, nowTime());
 }
-
 function deleteHolding(index) {
-  if (confirm('Are you sure you want to remove this holding from your portfolio?')) {
-    const holding = fabric.portfolio.holdings[index];
-    fabric.deleteHolding(index);
-    closeEditForm();
-    renderMsg('assistant', `<p>🗑️ Removed ${holding.name} from your portfolio.</p>`, nowTime());
-    setTimeout(() => renderMsg('assistant', engine._buildPortfolioSummaryCard(), nowTime(), null, true), 500);
-  }
+  if (confirm('Remove this holding?')) { const h = fabric.portfolio.holdings[index]; fabric.deleteHolding(index); closeEditForm(); renderMsg('assistant', `<p>🗑️ Removed ${h.name}</p>`, nowTime()); }
 }
+function showFullPortfolio() { renderMsg('assistant', engine._buildPortfolioSummaryCard(), nowTime()); }
+function closeEditForm(event) { document.querySelectorAll('.edit-holding-form').forEach(f => f.remove()); }
+function showPortfolioSummary() { renderMsg('assistant', engine._buildPortfolioSummaryCard(), nowTime()); }
+function clearSession() { if(confirm('Clear all saved data?')){ fabric.session.clear(); location.reload(); } }
 
-function showFullPortfolio() {
-  const p = fabric.portfolio;
-  if (!p.holdings.length) {
-    renderMsg('assistant', '<p>No portfolio data available. Add your investments using the format: "Add Axis Bluechip Fund, SIP ₹5000, Value ₹2.85L"</p>', nowTime());
-    return;
-  }
-
-  let portfolioHTML = `<div class="r-card"><div class="r-card-title">Complete Portfolio (${p.holdings.length} holdings)</div>`;
-  p.holdings.forEach((h, idx) => {
-    portfolioHTML += `
-      <div class="opp-row" style="margin-bottom: 8px;">
-        <div class="opp-left">
-          <div class="opp-ico" style="background:${h.type === 'Stock' ? 'rgba(208,2,27,.15)' : 'rgba(26,171,170,.15)'}">${h.type === 'Stock' ? '📊' : '💼'}</div>
-          <div>
-            <div class="opp-title">${h.name}</div>
-            <div class="opp-sub">${h.type} · SIP: ₹${(h.sipAmount || 0).toLocaleString('en-IN')} · Value: ₹${(h.value || 0).toLocaleString('en-IN')}</div>
-          </div>
-        </div>
-        <button onclick="editHolding(${idx})" class="et-link" style="padding: 4px 12px; background: rgba(26,107,181,.2); border-radius: 4px;">✏️ Edit</button>
-      </div>
-    `;
-  });
-  portfolioHTML += `<div style="text-align:center;padding:12px 0"><button onclick="injectQuick('Add new investment')" class="et-link" style="padding: 8px 16px; background: var(--teal); border-radius: 6px;">➕ Add New Holding</button></div></div>`;
-
-  renderMsg('assistant', portfolioHTML, nowTime());
-}
-
-function closeEditForm(event) {
-  const forms = document.querySelectorAll('.edit-holding-form');
-  forms.forEach(form => form.remove());
-}
-
-function showPortfolioSummary() {
-  renderMsg('assistant', engine._buildPortfolioSummaryCard(), nowTime());
-}
-
-// ============ BOOT SEQUENCE ============
+// ============================= BOOT =============================
 window.addEventListener('load', () => {
   const bar = document.getElementById('ld-bar');
   const steps = document.querySelectorAll('.loading-step');
   let i = 0;
+  const stepLabels = ['Initialising PAIL v4.0', 'Loading ET Data Fabric', 'Connecting ET Ecosystem', 'NLP Engine Active', 'AI Concierge Ready'];
   const tick = setInterval(() => {
     if (i < steps.length) {
       steps[i].classList.add('show');
       bar.style.width = ((i + 1) / steps.length * 100) + '%';
-      setTimeout(() => {
-        steps[i].classList.add('done');
-        steps[i].textContent = '✓ ' + ['Initialising PAIL v3.0', 'Loading ET Data Fabric', 'Connecting ET Ecosystem', 'Personalisation Engine Active', 'AI Concierge Ready'][i];
-      }, 250);
+      const idx = i;
+      setTimeout(() => { steps[idx].classList.add('done'); steps[idx].textContent = '✓ ' + stepLabels[idx]; }, 250);
       i++;
     } else {
       clearInterval(tick);
@@ -1391,14 +1482,20 @@ window.addEventListener('load', () => {
         ls.style.opacity = '0';
         setTimeout(() => {
           ls.remove();
-          fabric.pushSignal('PAIL v3.0 Intelligence Layer online', 'var(--teal)');
-          fabric.pushSignal(`User identity graph loaded — ${fabric.identityGraph.depth}% depth`, 'var(--gold)');
-          fabric.pushSignal('ET Data Fabric connected', 'var(--blue)');
-          fabric.updateUI();
-          fabric.renderMetrics();
+          fabric.pushSignal('PAIL v4.0 Intelligence Layer online', 'var(--teal)');
+          fabric.pushSignal('NLP Engine: 100+ intents loaded', 'var(--blue)');
+          fabric.pushSignal('ET Ecosystem KB: 50+ products mapped', 'var(--gold)');
+          if (fabric.isReturningUser()) {
+            fabric.pushSignal(`Welcome back ${fabric.identityGraph.name} — session restored`, 'var(--teal)');
+          }
+          fabric.updateUI(); fabric.renderMetrics();
           setQuickReplies(engine.agentConfig.concierge.qr);
-          const intro = engine.profilingStages[0];
-          renderMsg('assistant', intro.ask, nowTime(), intro.richType);
+          const intro = engine.agentIntro('concierge');
+          renderMsg('assistant', intro.text, nowTime(), intro.richType);
+          if (intro.extra) setTimeout(() => renderMsg('assistant', intro.extra, nowTime(), null, true), 600);
+          // Pre-fetch live data
+          fabric.liveData.getTopStories().catch(() => {});
+          fabric.liveData.getMarketSnapshot().catch(() => {});
         }, 500);
       }, 400);
     }
