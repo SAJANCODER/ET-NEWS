@@ -34,7 +34,7 @@ body {
     flex-direction: column;
     overflow: hidden;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,.1) transparent;
+    scrollbar-color: rgba(255, 255, 255, .1) transparent;
 }
 
 .topbar {
@@ -154,7 +154,7 @@ body {
     flex-shrink: 0;
     overflow-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,.08) transparent;
+    scrollbar-color: rgba(255, 255, 255, .08) transparent;
 }
 
 .sidebar::-webkit-scrollbar {
@@ -389,7 +389,7 @@ body {
     scroll-behavior: smooth;
     min-height: 0;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,.08) transparent;
+    scrollbar-color: rgba(255, 255, 255, .08) transparent;
 }
 
 .messages::-webkit-scrollbar {
@@ -675,7 +675,7 @@ body {
     max-height: 70px;
     overflow-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,.05) transparent;
+    scrollbar-color: rgba(255, 255, 255, .05) transparent;
 }
 
 .qr {
@@ -700,7 +700,7 @@ body {
 .input-area {
     padding: 12px 20px 16px;
     border-top: 1px solid var(--et-border);
-    background: linear-gradient(180deg, var(--et-charcoal) 0%, rgba(20,20,22,1) 100%);
+    background: linear-gradient(180deg, var(--et-charcoal) 0%, rgba(20, 20, 22, 1) 100%);
     flex-shrink: 0;
     position: relative;
     z-index: 10;
@@ -715,12 +715,12 @@ body {
     border-radius: 14px;
     padding: 10px 12px 10px 18px;
     transition: border-color .25s, box-shadow .25s;
-    box-shadow: 0 2px 12px rgba(0,0,0,.3);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, .3);
 }
 
 .input-row:focus-within {
     border-color: rgba(208, 2, 27, .6);
-    box-shadow: 0 2px 20px rgba(208, 2, 27, .15), 0 2px 12px rgba(0,0,0,.3);
+    box-shadow: 0 2px 20px rgba(208, 2, 27, .15), 0 2px 12px rgba(0, 0, 0, .3);
 }
 
 .msg-input {
@@ -785,7 +785,7 @@ body {
     overflow-y: auto;
     flex-shrink: 0;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,.08) transparent;
+    scrollbar-color: rgba(255, 255, 255, .08) transparent;
 }
 
 .right-panel::-webkit-scrollbar {
@@ -833,7 +833,7 @@ body {
     gap: 12px;
     min-height: 0;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,.08) transparent;
+    scrollbar-color: rgba(255, 255, 255, .08) transparent;
 }
 
 .panel-content::-webkit-scrollbar {
@@ -1507,8 +1507,17 @@ body {
 }
 
 @keyframes voicePulse {
-    0%, 100% { transform: scale(1); box-shadow: 0 0 8px rgba(232,93,36,.3); }
-    50% { transform: scale(1.08); box-shadow: 0 0 16px rgba(232,93,36,.5); }
+
+    0%,
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 8px rgba(232, 93, 36, .3);
+    }
+
+    50% {
+        transform: scale(1.08);
+        box-shadow: 0 0 16px rgba(232, 93, 36, .5);
+    }
 }
 
 /* ============ LIVE STATUS ============ */
@@ -1521,7 +1530,7 @@ body {
 .clear-session-btn {
     width: 28px;
     height: 28px;
-    background: rgba(255,255,255,.06);
+    background: rgba(255, 255, 255, .06);
     border: 1px solid var(--et-border);
     border-radius: 6px;
     color: var(--et-muted);
@@ -1535,7 +1544,112 @@ body {
 }
 
 .clear-session-btn:hover {
-    background: rgba(239,68,68,.15);
-    border-color: rgba(239,68,68,.3);
+    background: rgba(239, 68, 68, .15);
+    border-color: rgba(239, 68, 68, .3);
     color: #F87171;
+}
+
+
+/* --- Drawer Mechanics --- */
+.right-panel.drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: 400px;
+    z-index: 1000;
+    transform: translateX(100%);
+    /* Hidden by default */
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+    background: var(--et-charcoal);
+    display: flex;
+    /* Override previous display:none logic */
+}
+
+.right-panel.drawer.open {
+    transform: translateX(0);
+}
+
+.drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+    z-index: 999;
+}
+
+.drawer-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* --- Toggle Button & Badge --- */
+.profile-toggle-btn {
+    position: relative;
+    background: var(--et-surface2);
+    border: 1px solid var(--et-border);
+    color: var(--et-muted);
+    padding: 8px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.profile-toggle-btn:hover {
+    color: #fff;
+    border-color: var(--et-red);
+}
+
+.notification-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 10px;
+    height: 10px;
+    background: var(--et-red);
+    border: 2px solid var(--et-charcoal);
+    border-radius: 50%;
+    display: none;
+    /* Only show when updates happen while closed */
+}
+
+.notification-badge.pulse {
+    display: block;
+    animation: pulse 2s infinite;
+}
+
+/* --- UI Refinements --- */
+.drawer-header {
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--et-border);
+}
+
+.section-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--et-muted);
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    border-left: 2px solid var(--et-red);
+    padding-left: 8px;
+}
+
+.last-updated {
+    float: right;
+    font-size: 9px;
+    text-transform: none;
+    color: var(--et-muted);
+}
+
+@media (max-width: 480px) {
+    .right-panel.drawer {
+        width: 100vw;
+    }
 }
