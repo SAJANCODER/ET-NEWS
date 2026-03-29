@@ -1,2 +1,26 @@
-./test
-./vscode
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test directories
+test/
+tests/node_modules/
+
+# Build & dist
+dist/
+build/
