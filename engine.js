@@ -1306,65 +1306,42 @@ const engine = new Orchestrator(fabric);
 
 class VoiceInput {
   constructor() {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    this.supported = Boolean(SR);
+    this.recognition = null;
     this.isListening = false;
-    if (!this.supported) return;
-
-    this.recognition = new SR();
-    this.recognition.lang = 'en-IN';
-    this.recognition.interimResults = false;
-    this.recognition.maxAlternatives = 1;
-
-    this.recognition.onresult = (e) => {
-      const text = e.results?.[0]?.[0]?.transcript?.trim();
-      if (!text) return;
-      const input = document.getElementById('msg-input');
-      if (input) {
-        input.value = text;
-        sendMessage();
-      }
-    };
-    this.recognition.onend = () => { this.isListening = false; this._updateBtn(); };
-    this.recognition.onerror = () => { this.isListening = false; this._updateBtn(); };
+    this.supported = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+    if (this.supported) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      this.recognition = new SpeechRecognition();
+      this.recognition.continuous = false;
+      this.recognition.interimResults = true;
+      this.recognition.lang = 'en-IN';
+      this.recognition.onresult = (e) => {
+        const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
+        document.getElementById('msg-input').value = transcript;
+        if (e.results[0].isFinal) { this.stop(); setTimeout(() => sendMessage(), 300); }
+      };
+      this.recognition.onend = () => { this.isListening = false; this._updateBtn(); };
+      this.recognition.onerror = (e) => { this.isListening = false; this._updateBtn(); console.warn('Voice error:', e.error); };
+    }
   }
-
   toggle() {
-    if (!this.supported) {
-      alert('Voice input not supported in this browser.');
-      return;
-    }
-    if (this.isListening) this.stop();
-    else this.start();
+    if (!this.supported) { alert('Voice input not supported in this browser. Try Chrome.'); return; }
+    if (this.isListening) { this.stop(); } else { this.start(); }
   }
-
   start() {
-    try {
-      this.recognition.start();
-      this.isListening = true;
-      this._updateBtn();
-      fabric.pushSignal('Voice input active', 'var(--coral)');
-    } catch (e) {
-      this.isListening = false;
-      this._updateBtn();
-    }
+    try { this.recognition.start(); this.isListening = true; this._updateBtn(); fabric.pushSignal('Voice input active 🎙️', 'var(--coral)'); } catch (e) { console.warn('Voice start failed', e); }
   }
-
   stop() {
-    try { this.recognition.stop(); } catch (e) { }
-    this.isListening = false;
-    this._updateBtn();
+    try { this.recognition.stop(); } catch (e) { } this.isListening = false; this._updateBtn();
   }
-
   _updateBtn() {
     const btn = document.getElementById('voice-btn');
-    if (!btn) return;
-    btn.classList.toggle('voice-active', this.isListening);
-    btn.title = this.isListening ? 'Listening... click to stop' : 'Voice input';
+    if (btn) { btn.classList.toggle('voice-active', this.isListening); btn.title = this.isListening ? 'Listening... click to stop' : 'Voice input'; }
   }
 }
-
 const voice = new VoiceInput();
+
+
 const chatHistoryByAgent = {};
 const openedLinks = new Set();
 
